@@ -38,6 +38,9 @@ internal val GENERAL_SEARCH_ENGINE_IDS = setOf(
     "seznam-cz",
     "coccoc",
     "baidu",
+    "yandex",
+    "yandex-ru",
+    "yandex-en"
 )
 
 /**
