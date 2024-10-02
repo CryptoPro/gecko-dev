@@ -1,8 +1,9 @@
 package mozilla.components.feature.cades.plugin
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import androidx.annotation.VisibleForTesting
-import mozilla.components.feature.cades.plugin.sdk.wrapper.JniWrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -13,7 +14,10 @@ import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.engine.webextension.MessageHandler
 import mozilla.components.concept.engine.webextension.Port
 import mozilla.components.concept.engine.webextension.WebExtensionRuntime
+import mozilla.components.feature.cades.plugin.sdk.wrapper.JniInit
+import mozilla.components.feature.cades.plugin.sdk.wrapper.JniWrapper
 import mozilla.components.lib.state.ext.flowScoped
+import mozilla.components.support.base.feature.ActivityResultHandler
 import mozilla.components.support.base.feature.LifecycleAwareFeature
 import mozilla.components.support.base.log.logger.Logger
 import mozilla.components.support.ktx.kotlinx.coroutines.flow.filterChanged
@@ -23,7 +27,9 @@ class CAdESPluginFeature(
     private val context: Context,
     private val runtime: WebExtensionRuntime,
     private val store: BrowserStore,
-) : LifecycleAwareFeature {
+    private val launchQr: () -> Unit,
+    private val onShowSnackbar: (String, Boolean) -> Unit
+) : LifecycleAwareFeature, ActivityResultHandler {
 
     private var scope: CoroutineScope? = null
 
@@ -36,7 +42,7 @@ class CAdESPluginFeature(
     )
 
     override fun start() {
-        extensionController.registerBackgroundMessageHandler(CAdESPluginMessageHandler(), CAdES_PLUGIN_CONTENT_BACKGROUND_ID)
+        extensionController.registerBackgroundMessageHandler(CAdESPluginMessageHandler(launchQr = launchQr), CAdES_PLUGIN_CONTENT_BACKGROUND_ID)
         extensionController.install(
             runtime,
             onSuccess = {
@@ -57,7 +63,7 @@ class CAdESPluginFeature(
                                     return@collect
                                 }
                                 logger.debug("registerContentMessageHandler with session $engineSession")
-                                extensionController.registerContentMessageHandler(engineSession, CAdESPluginMessageHandler(), CAdES_PLUGIN_MESSAGING_ID)
+                                extensionController.registerContentMessageHandler(engineSession, CAdESPluginMessageHandler(launchQr = launchQr), CAdES_PLUGIN_MESSAGING_ID)
                             }
                         }
                     logger.debug("Installed CAdES Plug-in web extension: ${it.id}")
@@ -84,10 +90,30 @@ class CAdESPluginFeature(
                 it.start()
             }
         }
+        private const val LAUNCH_QR = "LAUNCH_QR_SCANNER"
+        // The Qr request code
+        const val QR_REQUEST = 111123
+    }
+
+    override fun onActivityResult(requestCode: Int, data: Intent?, resultCode: Int): Boolean {
+        if (requestCode == QR_REQUEST ) {
+            if (resultCode == Activity.RESULT_OK) {
+                data?.data?.let { uri ->
+                    JniInit.importQr(
+                        context = context,
+                        uri = uri,
+                        onShowSnackbar = { text, isError -> onShowSnackbar(text, isError) }
+                        )
+                }
+            }
+            return true
+        }
+        return false
     }
 
     private class CAdESPluginMessageHandler(
         private val productName: String = PRODUCT_NAME,
+        private val launchQr: () -> Unit
     ) : MessageHandler {
         override fun onPortConnected(port: Port) {
             logger.debug("onPortConnected($port) for session ${port.engineSession}")
@@ -95,8 +121,9 @@ class CAdESPluginFeature(
         }
         override fun onPortMessage(message: Any, port: Port) {
             reader.setPort(port) // актуализируем порт
-            val e = message.toString();
-            logger.debug("onPortMessage($e, $port) for session ${port.engineSession}");
+            val e = message.toString()
+            if (e.equals(LAUNCH_QR, true)) launchQr()
+            logger.debug("onPortMessage($e, $port) for session ${port.engineSession}")
             JniWrapper.write(e, 0)
         }
         override fun onPortDisconnected(port: Port) {

@@ -1,9 +1,18 @@
 package mozilla.components.feature.cades.plugin.sdk.wrapper
 
 import android.content.Context
+import android.net.Uri
 import mozilla.components.support.base.log.logger.Logger
-
+import org.apache.commons.codec.binary.Base32
+import org.apache.commons.codec.binary.Base64
 import ru.CryptoPro.JCSP.NCSPConfig
+import ru.cprocsp.URIManager.CRLManager
+import ru.cprocsp.URIManager.IntermediateCertificateManager
+import ru.cprocsp.URIManager.LicenseManager
+import ru.cprocsp.URIManager.PFXManager
+import ru.cprocsp.URIManager.RootCertificateManager
+import ru.cprocsp.URIManager.URIManagerFactory
+import ru.cprocsp.qrscanner.R
 
 class JniInit {
     companion object {
@@ -40,6 +49,42 @@ class JniInit {
             val error = JniWrapper.main(context.applicationInfo.dataDir)
             if (error != 0) {
                 logger.error("Main message circle failed with error $error")
+            }
+        }
+
+        @JvmStatic
+        fun importQr(context: Context, uri: Uri, onShowSnackbar: (String, Boolean) -> Unit) {
+            try {
+                val uriManager = URIManagerFactory.getInstance(uri, context)
+                val listener: URIManagerFactory.ContentListener = URIManagerFactory.ContentListener { content, _ ->
+                    content?.let {
+                        //val base32 = Base32()
+                        //val base64 = Base64()
+                        //val base64Data = base64.encode(base32.decode(content))
+                        when(uriManager) {
+                            is RootCertificateManager -> {
+                                onShowSnackbar(context.getString(R.string.InvalidURIFormat), true)
+                            }
+                            is CRLManager -> {
+
+                            }
+                            is IntermediateCertificateManager -> {
+
+                            }
+                            is PFXManager -> {
+
+                            }
+                            is LicenseManager -> {
+
+                            }
+                            else -> onShowSnackbar(context.getString(R.string.InvalidURIFormat), true)
+                        }
+                    }
+                }
+                uriManager.setListener(listener)
+                uriManager.addContent(context, uri)
+            } catch (e : Exception) {
+                onShowSnackbar(e.message ?: context.getString(R.string.InvalidURIFormat), true)
             }
         }
     }

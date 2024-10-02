@@ -80,6 +80,7 @@ dependencies {
     implementation project(':support-base')
     // CSP
     implementation(fileTree("android-native-csp/aar") {include("*.aar")})
+    implementation "commons-codec:commons-codec:1.14"
     // UI
     implementation ComponentsDependencies.androidx_appcompat
     implementation ComponentsDependencies.androidx_constraintlayout

@@ -769,6 +769,8 @@ dependencies {
 
     lintChecks project(":mozilla-lint-rules")
     lintChecks project(':tooling-lint')
+
+    implementation(fileTree("../../android-components/components/feature/cades-plugin-sdk/android-native-csp/aar") {include("*.aar")})
 }
 
 protobuf {
