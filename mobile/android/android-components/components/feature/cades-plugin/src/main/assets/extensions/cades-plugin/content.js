@@ -14,6 +14,7 @@
     let isYandex = false;
     let browserInstance;
     let bFirstCall = true;
+    var gc_message_collector = {};
 
     window.addEventListener("message", function (event) {
         if (event.source !== window)
@@ -158,6 +159,28 @@
     }, false);
 
     function bg_on_message (msg) {
+        if (msg.partial)
+        {
+            if(msg.partial == 1)
+            {
+                gc_message_collector[msg.tabid + ":" + msg.requestid] = msg.part;
+                cpcsp_console_log(LOG_LEVEL_DEBUG, "content.js: Received native message begin");
+                return;
+            }
+            if(msg.partial > 1)
+            {
+                gc_message_collector[msg.tabid + ":" + msg.requestid] += msg.part;
+                cpcsp_console_log(LOG_LEVEL_DEBUG, "content.js: Received native message next part");
+                return;
+            }
+            if(msg.partial == -1)
+            {
+                gc_message_collector[msg.tabid + ":" + msg.requestid] += msg.part;
+                cpcsp_console_log(LOG_LEVEL_DEBUG, "content.js: Received native message end");
+                msg = JSON.parse(gc_message_collector[msg.tabid + ":" + msg.requestid]);
+                gc_message_collector[msg.tabid + ":" + msg.requestid] = "";
+            }
+        }
         if(msg.data.type === "result" || msg.data.type === "error") {
             cpcsp_console_log(LOG_LEVEL_DEBUG, "content.js: Sent message to nmcades_plugin:" + JSON.stringify(msg));
             window.postMessage( msg, "*");
