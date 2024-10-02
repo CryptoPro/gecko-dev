@@ -1447,6 +1447,11 @@ projects:
     - support-webextensions
     - tooling-lint
     - ui-icons
+  feature-cades-plugin:
+    description: Feature that enables users to use CAdES Browser Plug-in
+      Compatibility team.
+    path: components/feature/cades-plugin
+    publish: true
   feature-webnotifications:
     description: Feature component for Web Notifications.
     path: components/feature/webnotifications

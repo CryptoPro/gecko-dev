@@ -1,0 +1,71 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    defaultConfig {
+        minSdkVersion config.minSdkVersion
+        compileSdk config.compileSdkVersion
+        targetSdkVersion config.targetSdkVersion
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+        }
+    }
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging true
+            keepDebugSymbols += ['*/arm64-v8a/*.so', '*/armeabi-v7a/*.so', '*/x86_64/*.so', '*/x86/*.so']
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.22.1'
+        }
+    }
+    sourceSets {
+        main {
+            // Application resources.
+            res.srcDirs = ['src/main/res']
+            // Resources from android-native-csp.
+            res.srcDirs += ['android-native-csp/resources/res']
+            // so from android-native-csp (CMakeFiles.txt).
+            jniLibs.srcDirs = ['android-native-csp/jniLibs']
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    namespace 'mozilla.components.feature.cades.plugin'
+}
+
+dependencies {
+    implementation project(':concept-engine')
+    implementation project(":browser-state")
+    implementation project(':support-webextensions')
+    implementation project(':support-ktx')
+
+    implementation ComponentsDependencies.androidx_core_ktx
+
+    implementation ComponentsDependencies.kotlin_coroutines
+
+    testImplementation ComponentsDependencies.androidx_test_core
+    testImplementation ComponentsDependencies.androidx_test_junit
+    testImplementation ComponentsDependencies.testing_robolectric
+    testImplementation ComponentsDependencies.testing_coroutines
+
+    // CSP
+    implementation fileTree(dir: 'android-native-csp/aar', include: ['*.jar', '*.aar'])
+    // UI
+    implementation "androidx.appcompat:appcompat:1.4.1"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.3"
+    implementation "com.google.android.material:material:1.5.0"
+
+}
+
+apply from: '../../../android-lint.gradle'
+apply from: '../../../publish.gradle'
+ext.configurePublish(config.componentsGroupId, archivesBaseName, project.ext.description)

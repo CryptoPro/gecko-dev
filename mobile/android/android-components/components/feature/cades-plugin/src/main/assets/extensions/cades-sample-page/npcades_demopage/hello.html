@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Установка завершена</title>
+    <meta name="robots" content="noindex, nofollow" charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="demopage.css?v=@VERSION@" rel="stylesheet" type="text/css" />
+    <script language="javascript" src="../es6-promise.min.js?v=@VERSION@"></script>
+    <script language="javascript" src="ie_eventlistner_polyfill.js?v=@VERSION@"></script>
+    <script language="javascript" src="lights.js?v=@VERSION@"></script>
+    <script language="javascript" src="../cadesplugin_api.js?v=@VERSION@"></script>
+    <script language="javascript" src="Code.js?v=@VERSION@"></script>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="title">
+                <h1>Установка завершена</h1>
+            </div>
+        </div>
+        <div class="container">
+                        <div class="edge">
+                            <div id="csp_msg" style="text-align:left;">
+                                <div id="gostcheck"></div>
+                                <script>
+                                    var gost;
+                                    function reqGostListener() {
+                                        gost = JSON.parse(this.responseText).gost;
+                                        printMessage(gost);
+                                    }
+                                    
+                                    var oReqGOST = new XMLHttpRequest();
+                                    oReqGOST.onload = reqGostListener;
+                                    oReqGOST.open("get", "https://gost.cryptopro.ru/info.php", true);
+                                    oReqGOST.send();
+                                    
+                                    function printMessage(gost) {
+                                        if (gost === undefined)
+                                            return;
+                                        var targetElement = document.getElementById('gostcheck');
+                                        if (gost) {
+                                            // positive
+                                            targetElement.innerHTML = '<div style="margin-top:20px; margin-bottom:20px; border-left:7px solid #00A969;background:#F6F6F6; display:flex; align-items: center; justify-content: start;"> <div style="padding:15px;"> <b><span style="font-size:14px;">Ваш браузер поддерживает ГОСТ TLS</span></b><br /> Всё в порядке, можно двигаться дальше, это необходимое условие для тестирования. </div> ';
+                                        } else {
+                                            // negative
+                                            targetElement.innerHTML = '<div style="margin-top:20px; margin-bottom:20px; border-left:7px solid #FF1635;background:#F6F6F6; display:flex; align-items: center; justify-content: start;"> <div style="padding:15px;"> <b><span style="font-size:14px;">Ваш браузер не поддерживает ГОСТ TLS</span></b><br />Вам необходим браузер с поддержкой криптографии ГОСТ (<a href="/products/chromium-gost">например</a>) и установленным <a href="/products/csp" _mce_href="/products/csp">КриптоПро CSP</a>. Это необходимое условие для продолжения, без этого часть ссылок тестирования ГОСТ TLS не будет открываться совсем. </div> </div>';
+                                        }
+                                    }
+                                    </script>
+                                <p>
+                                    <span class="dot red" id="ExtensionEnabledImg"></span><span id="ExtensionEnabledTxt">Расширение не загружено</span>
+                                    <span id="ExtensionSolution"></span>
+                                </p>
+                                <p>
+                                    <span class="dot" id="PluginEnabledImg"></span><span id="PluginEnabledTxt">Плагин: ожидание загрузки расширения</span>
+                                    <span id="PluginSolution"></span>
+                                </p>
+                                <p>
+                                    <span class="dot" id="CspEnabledImg"></span><span id="CspEnabledTxt">КриптоПро CSP: ожидание загрузки плагина</span>
+                                    <span id="CspSolution"></span>
+                                </p>
+                                <p>
+                                    <span class="dot" id="ObjectsLoadedImg"></span><span id="ObjectsLoadedTxt">Объекты плагина: ожидание загрузки провайдера</span>
+                                    <span id="ObjectsSolution"></span>
+                                </p>
+                                <div class="edge"></div>
+                                <div id="mpopupBox" class="mpopup">
+                                    <div class="modal_content">
+                                        <span id="modalClose" class="modal_close">×</span>
+                                        <div class="modal_header">
+                                            <div class="popup_logo">
+                                                <img src="https://cryptopro.ru/static/logo/logo_cryptopro.svg">
+                                            </div>
+                                        </div>
+                                        <div class="modal_body">
+                                            <div id="modalProductNameTxt"></div>
+                                            <div class="modal_edge">
+                                                <input type="text" class="modal_input" id="modalInfoSerial" placeholder="Серийный номер*">
+                                                <input type="text" class="modal_input" id="modalInfoUser" placeholder="Владелец">
+                                                <input type="text" class="modal_input" id="modalInfoCompany" placeholder="Компания">
+                                            </div>
+                                        </div>
+                                        <div class="modal_footer">
+                                            <button type="button" class="modal_button modal_button_buy" id="buyBtn">Купить лицензию</button>
+                                            <button type="button" class="modal_button modal_button_action" id="applyBtn">Применить</button>
+                                            <button type="button" class="modal_button modal_button_action" id="cancelBtn">Отмена</button>
+                                        </div>
+                                        <div class="modal_success" id="modalSuccess">Успешно!</div>
+                                        <div class="modal_error" id="modalError">Ошибка!</div>
+                                    </div>
+                                </div>
+                                <ul class="descr">
+                                    <li class="descr" id="ExtVersionTxt" lang="ru"></li>
+                                    <li class="descr" id="PlugInVersionTxt" lang="ru"></li>
+                                    <li class="descr" id="CSPVersionTxt" lang="ru"></li>
+                                    <li class="descr" id="CSPNameTxt" lang="ru"></li>
+                                    <li class="descr" id="ExtStoreTxt" lang="ru"></li>
+                                    <li class="descr" id="Platform"></li>
+                                    <li class="descr" id="UserAgent"></li>
+                                    <li class="descr" id="CspLicense"></li>
+                                    <li class="descr" id="TspLicense"></li>
+                                    <li class="descr" id="OcspLicense"></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="boxdiv" style="display:none"></div>
+                        <select name="CertListBox" id="CertListBox" style="display:none" ></select>
+        </div>
+    </div>
+    <div id="footer">
+        © ООО &quot;КРИПТО-ПРО&quot;, 2001-<script>document.write(new Date().getFullYear())</script><br />
+        +7 (495) 995-48-20
+    </div>
+    <script language="javascript" src="load_extension.js?v=@VERSION@"></script>
+</body>
+</html>

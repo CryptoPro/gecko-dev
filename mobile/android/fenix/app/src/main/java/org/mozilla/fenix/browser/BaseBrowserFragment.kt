@@ -85,6 +85,7 @@ import mozilla.components.concept.engine.prompt.ShareData
 import mozilla.components.concept.storage.LoginEntry
 import mozilla.components.feature.accounts.push.SendTabUseCases
 import mozilla.components.feature.app.links.AppLinksFeature
+import mozilla.components.feature.cades.plugin.CAdESPluginFeature
 import mozilla.components.feature.contextmenu.ContextMenuCandidate
 import mozilla.components.feature.contextmenu.ContextMenuFeature
 import mozilla.components.feature.downloads.DownloadsFeature
@@ -314,8 +315,9 @@ abstract class BaseBrowserFragment :
     private val findInPageBinding = ViewBoundFeatureWrapper<FindInPageBinding>()
     private val snackbarBinding = ViewBoundFeatureWrapper<SnackbarBinding>()
     private val standardSnackbarErrorBinding = ViewBoundFeatureWrapper<StandardSnackbarErrorBinding>()
-
     private var pipFeature: PictureInPictureFeature? = null
+
+    private val cAdESPluginIntegration = ViewBoundFeatureWrapper<CAdESPluginFeature>()
 
     var customTabSessionId: String? = null
 
@@ -1221,6 +1223,16 @@ abstract class BaseBrowserFragment :
         )
 
         initializeMicrosurveyFeature(context)
+
+        cAdESPluginIntegration.set(
+            feature = CAdESPluginFeature(
+                requireActivity(),
+                requireComponents.core.engine,
+                requireComponents.core.store,
+                ),
+            owner = this,
+            view = view,
+        )
     }
 
     private fun showUndoSnackbar(message: String) {

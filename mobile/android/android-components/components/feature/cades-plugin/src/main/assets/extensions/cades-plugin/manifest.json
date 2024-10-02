@@ -1,0 +1,49 @@
+{
+    "manifest_version": 2,
+    "name": "CryptoPro Extension for CAdES Browser Plug-in",
+    "version": "1.2.14",
+    "description": "CryptoPro Browser plug-in extension for Gecko/Android.",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "ru.cryptopro.nmcades@cryptopro.ru",
+            "strict_min_version": "50.0",
+            "update_url": "https://www.cryptopro.ru/sites/default/files/products/cades/extensions/ffupdates.json"
+        }
+    },
+    "content_scripts": [
+        {
+            "matches": [ "<all_urls>" ],
+            "js": [ "content.js" ],
+            "run_at": "document_start",
+            "all_frames": true
+        }
+    ],
+    "background": {
+        "scripts": [
+            "background.js"
+        ]
+    },
+    "web_accessible_resources": [
+        "nmcades_plugin_api.js",
+        "trusted_sites.html"
+    ],
+    "permissions": [
+        "nativeMessaging",
+        "nativeMessagingFromContent",
+        "geckoViewAddons",
+        "webRequest",
+        "webRequestBlocking",
+        "tabs",
+        "webNavigation",
+        "<all_urls>"
+    ],
+  "content_security_policy": "script-src 'self'; object-src 'self'",
+    "page_action": {
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        },
+        "default_popup": "popup.html"
+    }
+}

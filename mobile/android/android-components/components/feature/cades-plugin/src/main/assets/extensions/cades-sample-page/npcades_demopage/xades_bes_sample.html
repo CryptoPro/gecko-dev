@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Пример использования КриптоПро ЭЦП Browser plug-in</title>
+    <meta name="robots" content="noindex, nofollow" charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="demopage.css?v=@VERSION@" rel="stylesheet" type="text/css" />
+    <script language="javascript" src="../es6-promise.min.js?v=@VERSION@"></script>
+    <script language="javascript" src="ie_eventlistner_polyfill.js?v=@VERSION@"></script>
+    <script language="javascript" src="lights.js?v=@VERSION@"></script>
+    <script language="javascript" src="../cadesplugin_api.js?v=@VERSION@"></script>
+    <script language="javascript" src="Code.js?v=@VERSION@"></script>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="title">
+                <h1>Проверка создания электронной подписи XML формата XADES-E-BES</h1>
+            </div>
+        </div>
+        <div id="promo" class="edge"></div>
+        <div class="container">
+            <table id="toggled-element">
+                <tbody>
+                <tr class="col-4 col-s-4">
+                    <td>
+                        <ul>
+                            <li><a class="active" href="https://cryptopro.ru/">Сайт КриптоПро</a></li>
+                            <li><a class="active" href="main.html" class="current">О КриптоПро ЭЦП Browser plug-in</a></li>
+                            <li><a class="active" href="https://docs.cryptopro.ru/cades/plugin">Инструкция по работе с плагином</a></li>
+                            <li><a class="active" href="/products/cades/plugin/get_2_0">Скачать плагин</a></li>
+                            <li><a class="active" href="https://cryptopro.ru/products/csp/downloads">Скачать КриптоПро CSP</a></li>
+                            <li><a href="https://testgost2012.cryptopro.ru/certsrv/certnew.cer?ReqID=CACert&Renewal=-1&Enc=b64">Скачать корневой сертификат тестового УЦ</a></li>
+                            <li><a href="javascript:;" onClick="Common_InstallTestCARoot();">Установить корневой сертификат тестового УЦ</a></li>
+                            <li><a href="javascript:;" onClick="Common_RetrieveCertificate();">Получить личный тестовый сертификат</a></li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr class="col-8 col-s-8">
+                    <td>
+                        <p class="info_msg" name="Diagnostics">Диагностика</p>
+                        <div class="edge">
+                            <div id="csp_msg" style="text-align:left;">
+                                <p>
+                                    <span class="dot red" id="ExtensionEnabledImg"></span><span id="ExtensionEnabledTxt">Расширение не загружено</span>
+                                    <span id="ExtensionSolution"></span>
+                                </p>
+                                <p>
+                                    <span class="dot" id="PluginEnabledImg"></span><span id="PluginEnabledTxt">Плагин: ожидание загрузки расширения</span>
+                                    <span id="PluginSolution"></span>
+                                </p>
+                                <p>
+                                    <span class="dot" id="CspEnabledImg"></span><span id="CspEnabledTxt">КриптоПро CSP: ожидание загрузки плагина</span>
+                                    <span id="CspSolution"></span>
+                                </p>
+                                <p>
+                                    <span class="dot" id="ObjectsLoadedImg"></span><span id="ObjectsLoadedTxt">Объекты плагина: ожидание загрузки провайдера</span>
+                                    <span id="ObjectsSolution"></span>
+                                </p>
+                                <div class="edge"></div>
+                                <div id="mpopupBox" class="mpopup">
+                                    <div class="modal_content">
+                                        <span id="modalClose" class="modal_close">×</span>
+                                        <div class="modal_header">
+                                            <div class="popup_logo">
+                                                <img src="https://cryptopro.ru/static/logo/logo_cryptopro.svg">
+                                            </div>
+                                        </div>
+                                        <div class="modal_body">
+                                            <div id="modalProductNameTxt"></div>
+                                            <div class="modal_edge">
+                                                <input type="text" class="modal_input" id="modalInfoSerial" placeholder="Серийный номер*">
+                                                <input type="text" class="modal_input" id="modalInfoUser" placeholder="Владелец">
+                                                <input type="text" class="modal_input" id="modalInfoCompany" placeholder="Компания">
+                                            </div>
+                                        </div>
+                                        <div class="modal_footer">
+                                            <button type="button" class="modal_button modal_button_buy" id="buyBtn">Купить лицензию</button>
+                                            <button type="button" class="modal_button modal_button_action" id="applyBtn">Применить</button>
+                                            <button type="button" class="modal_button modal_button_action" id="cancelBtn">Отмена</button>
+                                        </div>
+                                        <div class="modal_success" id="modalSuccess">Успешно!</div>
+                                        <div class="modal_error" id="modalError">Ошибка!</div>
+                                    </div>
+                                </div>
+                                <ul class="descr"> 
+                                    <li class="descr" id="ExtVersionTxt" lang="ru"></li>
+                                    <li class="descr" id="PlugInVersionTxt" lang="ru"></li>
+                                    <li class="descr" id="CSPVersionTxt" lang="ru"></li>
+                                    <li class="descr" id="CSPNameTxt" lang="ru"></li>
+                                    <li class="descr" id="ExtStoreTxt" lang="ru"></li>
+                                    <li class="descr" id="Platform"></li>
+                                    <li class="descr" id="UserAgent"></li>
+                                    <li class="descr" id="CspLicense"></li>
+                                    <li class="descr" id="TspLicense"></li>
+                                    <li class="descr" id="OcspLicense"></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="info_msg" id="CertificateTitle" name="CertificateTitle">Выберите сертификат:</p>
+                        <div class="edge item_border" id="CertListBoxToHide" name="CertListBoxToHide">
+                            <div id="boxdiv" style="display:none">
+                                <span id="errorarea">
+                                    У вас отсутствуют личные сертификаты.
+                                </span>
+                            </div>
+                            <select size="8" name="CertListBox" id="CertListBox" class="user_input">
+                            </select>
+                        </div>
+                        <p class="info_msg" id="DataToSign" name="DataToSign" style="display:none">Данные для подписи:</p>
+                        <div id="DataToSignItemBorder" class="edge item_border" name="DataToSignItemBorder" style="display:none">
+                            <textarea id="DataToSignTxtBox" name="DataToSignTxtBox" class="user_input">
+                            </textarea>
+                        </div>
+                        <script language="javascript">
+                            var txtDataToSign =
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                                "<!-- \n" +
+                                " Original XML doc file for sign example. \n" +
+                                "--> \n" +
+                                "<Envelope xmlns=\"urn:envelope\">\n" +
+                                "  <Data>\n" +
+                                "	Hello, World!\n" +
+                                "  </Data>\n" +
+                                "  <Node xml:id=\"nodeID\">\n" +
+                                "	Hello, Node!\n" +
+                                "  </Node>\n" +
+                                "</Envelope>";
+                            document.getElementById("DataToSignTxtBox").innerHTML = txtDataToSign;
+                            document.getElementById("DataToSignTxtBox").style.height = '200px';
+                        </script>
+                        <div class="edge">
+                            <button id="SignBtn" type="button" class="button" style="display:none" name="SignData" onclick="Common_SignCadesXML('CertListBox', cadesplugin.CADESCOM_XADES_BES);">Подписать</button>
+                        </div>
+                        <div id="cert_info" class="edge" name="CertInfo" style="display:none">
+                            <h2>Информация о сертификате</h2>
+                            <p class="info_field_limited" style="-webkit-line-clamp: 3" id="subject"></p>
+                            <p class="info_field_limited" style="-webkit-line-clamp: 3" id="issuer"></p>
+                            <p class="info_field" id="from"></p>
+                            <p class="info_field" id="till"></p>
+                            <p class="info_field_limited" id="provname"></p>
+                            <p class="info_field_limited" style="-webkit-line-clamp: 2" id="privateKeyLink"></p>
+                            <p class="info_field" id="algorithm"></p>
+                            <p class="info_field" id="status"></p>
+                            <p class="info_field" id="location"></p>
+                            <p class="info_field" id="certlicense"></p>
+                        </div>
+                        <p class="info_msg" id="SignatureTitle" name="SignatureTitle" style="display:none">Подпись:</p>
+                        <div class="edge item_border" id="SignatureTitleItemBorder" name="SignatureTitleItemBorder" style="display:none">
+                            <textarea id="SignatureTxtBox" readonly class="user_input mono">
+                            </textarea>
+                            <script language="javascript">
+                                document.getElementById("SignatureTxtBox").innerHTML = "";
+                            </script>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="footer">
+        © ООО &quot;КРИПТО-ПРО&quot;, 2001-<script>document.write(new Date().getFullYear())</script><br />
+        +7 (495) 995-48-20
+    </div>
+    <script language="javascript" src="load_extension.js?v=@VERSION@"></script>
+    <script language="javascript" src="highlight.js?v=@VERSION@"></script>
+</body>
+</html>
