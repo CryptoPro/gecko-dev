@@ -60,10 +60,9 @@ class JniInit {
                     content?.let {
                         //val base32 = Base32()
                         //val base64 = Base64()
-                        //val base64Data = base64.encode(base32.decode(content))
+                        //val base64Data = base64.encode(base32.decode(it))
                         when(uriManager) {
                             is RootCertificateManager -> {
-                                onShowSnackbar(context.getString(R.string.InvalidURIFormat), true)
                             }
                             is CRLManager -> {
 

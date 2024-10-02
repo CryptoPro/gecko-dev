@@ -111,7 +111,6 @@ import mozilla.components.feature.prompts.login.PasswordGeneratorDialogColors
 import mozilla.components.feature.prompts.login.PasswordGeneratorDialogColorsProvider
 import mozilla.components.feature.prompts.login.SuggestStrongPasswordDelegate
 import mozilla.components.feature.prompts.share.ShareDelegate
-import mozilla.components.feature.qr.QrFeature
 import mozilla.components.feature.readerview.ReaderViewFeature
 import mozilla.components.feature.search.SearchFeature
 import mozilla.components.feature.session.FullScreenFeature
@@ -2659,8 +2658,10 @@ abstract class BaseBrowserFragment :
         }
 
         when {
-            requireContext().settings().shouldShowCameraPermissionPrompt ->
-                startQrActivityForResult.launch(Intent(requireContext(), QrActivity::class.java))
+            requireContext().settings().shouldShowCameraPermissionPrompt -> {
+                interactor.onCameraPermissionsNeeded()
+                view?.hideKeyboard()
+            }
             requireContext().isPermissionGranted(Manifest.permission.CAMERA) ->
                 startQrActivityForResult.launch(Intent(requireContext(), QrActivity::class.java))
             else -> {
