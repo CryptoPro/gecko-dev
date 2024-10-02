@@ -122,7 +122,10 @@ class CAdESPluginFeature(
         override fun onPortMessage(message: Any, port: Port) {
             reader.setPort(port) // актуализируем порт
             val e = message.toString()
-            if (e.equals(LAUNCH_QR, true)) launchQr()
+            if (e.equals(LAUNCH_QR, true)) {
+                launchQr()
+                return
+            }
             logger.debug("onPortMessage($e, $port) for session ${port.engineSession}")
             JniWrapper.write(e, 0)
         }
