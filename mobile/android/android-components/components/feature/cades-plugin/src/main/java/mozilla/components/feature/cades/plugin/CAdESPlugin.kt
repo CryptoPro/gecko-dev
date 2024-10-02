@@ -14,7 +14,7 @@ class CAdESPlugin private constructor(val context: Context, val logger: Logger) 
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: CAdESPlugin? = null
-        suspend fun init(context: Context, logger: Logger): CAdESPlugin = withContext(Dispatchers.IO) {
+        fun init(context: Context, logger: Logger): CAdESPlugin {
             var localRef = instance
             if (localRef == null) {
                 synchronized(this) {
@@ -25,7 +25,7 @@ class CAdESPlugin private constructor(val context: Context, val logger: Logger) 
                     instance = localRef
                 }
             }
-            return@withContext localRef!!
+            return localRef!!
         }
         internal const val CAdES_OCSP_LICENSE = "0A202-U0030-00ECW-RRLMF-UU2WK"
         internal const val CAdES_TSP_LICENSE = "TA200-G0030-00ECW-RRLNE-BTDVV"
