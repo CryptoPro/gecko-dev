@@ -60,7 +60,7 @@
     },
     "be": {
       "default": {
-        "visibleDefaultEngines": [""yandex.by", google-b-m", "bing", "ddg", "wikipedia-be"]
+        "visibleDefaultEngines": ["yandex.by", "google-b-m", "bing", "ddg", "wikipedia-be"]
       },
       "BY": {
         "searchDefault": "Яндекс"
