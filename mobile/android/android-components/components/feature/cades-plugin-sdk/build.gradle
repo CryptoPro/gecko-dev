@@ -87,6 +87,7 @@ dependencies {
     // CSP
     embed (name:'csp-base', ext:'aar')
     embed (name:'csp-gui', ext:'aar')
+    embed (name:'rtpcsc-2.4.0', ext:'aar')
     // UI
     implementation ComponentsDependencies.androidx_appcompat
     implementation ComponentsDependencies.androidx_constraintlayout
