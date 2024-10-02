@@ -22,12 +22,6 @@ plugins {
 
 apply plugin: 'com.kezong.fat-aar'
 
-repositories {
-    flatDir {
-        dirs './android-native-csp/aar'
-    }
-}
-
 android {
     defaultConfig {
         minSdkVersion config.minSdkVersion
@@ -85,9 +79,7 @@ android {
 dependencies {
     implementation project(':support-base')
     // CSP
-    embed (name:'csp-base', ext:'aar')
-    embed (name:'csp-gui', ext:'aar')
-    embed (name:'rtpcsc-2.4.0', ext:'aar')
+    implementation(fileTree("android-native-csp/aar") {include("*.aar")})
     // UI
     implementation ComponentsDependencies.androidx_appcompat
     implementation ComponentsDependencies.androidx_constraintlayout
