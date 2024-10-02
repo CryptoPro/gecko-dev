@@ -621,7 +621,9 @@ dependencies {
     implementation project(':feature-webcompat')
     implementation project(':feature-webnotifications')
     implementation project(':feature-webcompat-reporter')
+
     implementation project(':feature-cades-plugin')
+    implementation fileTree(dir: '../../android-components/components/feature/cades-plugin/android-native-csp/aar', include: ['*.jar', '*.aar']) // CSP
 
     implementation project(':service-pocket')
     implementation project(':service-contile')

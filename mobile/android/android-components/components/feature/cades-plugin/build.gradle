@@ -58,7 +58,7 @@ dependencies {
     testImplementation ComponentsDependencies.testing_coroutines
 
     // CSP
-    implementation fileTree(dir: 'android-native-csp/aar', include: ['*.jar', '*.aar'])
+    compileOnly fileTree(dir: 'android-native-csp/aar', include: ['*.jar', '*.aar'])
     // UI
     implementation "androidx.appcompat:appcompat:1.4.1"
     implementation "androidx.constraintlayout:constraintlayout:2.1.3"
