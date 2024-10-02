@@ -48,7 +48,7 @@ class CAdESPluginFeature(
                             }
                         }
                         // Реакция на изменения на вкладках.
-                        store.flowScoped { flow ->
+                        scope = store.flowScoped { flow ->
                             flow.map { it.tabs }
                             .filterChanged { it.engineState.engineSession }
                             .collect { tab ->
