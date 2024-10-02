@@ -793,6 +793,8 @@
     },
     "ru": {
       "default": {
+        "searchDefault": "Яндекс",
+        "searchOrder": ["Яндекс", "Google", "Bing"],
         "visibleDefaultEngines": [
           "yandex-ru", "google-b-m", "ddg", "wikipedia-ru"
         ]
