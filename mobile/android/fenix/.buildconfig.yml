@@ -60,6 +60,7 @@ projects:
     - feature-webcompat-reporter
     - feature-webnotifications
     - feature-cades-plugin
+    - feature-cades-plugin-sdk
     - lib-crash
     - lib-crash-sentry
     - lib-dataprotect

@@ -21,7 +21,7 @@ static int fd_in = 0, fd_out = 0;
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_mozilla_components_feature_cades_plugin_wrapper_JniWrapper_main(JNIEnv *env, jclass clazz, jstring jPath) {
+Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_main(JNIEnv *env, jclass clazz, jstring jPath) {
     int error;
     const char *pszPath = nullptr;
     std::string path, inPath, outPath;
@@ -70,7 +70,7 @@ end:
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_mozilla_components_feature_cades_plugin_wrapper_JniWrapper_close(JNIEnv *env, jclass clazz, jstring jPath) {
+Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_close(JNIEnv *env, jclass clazz, jstring jPath) {
     if (fd_in) {
         close(fd_in);
         fd_in = 0;
@@ -84,7 +84,7 @@ Java_mozilla_components_feature_cades_plugin_wrapper_JniWrapper_close(JNIEnv *en
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_mozilla_components_feature_cades_plugin_wrapper_JniWrapper_read(JNIEnv *env, jclass clazz) {
+Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_read(JNIEnv *env, jclass clazz) {
     auto result = read_wrapper();
     if (result != nullptr) {
         return env->NewStringUTF(result);
@@ -93,7 +93,7 @@ Java_mozilla_components_feature_cades_plugin_wrapper_JniWrapper_read(JNIEnv *env
 }
 extern "C"
 JNIEXPORT jint JNICALL
-Java_mozilla_components_feature_cades_plugin_wrapper_JniWrapper_write(JNIEnv *env, jclass clazz, jstring jMessage, jint jFlags) {
+Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_write(JNIEnv *env, jclass clazz, jstring jMessage, jint jFlags) {
     const char *message = nullptr;
     jint messageLen = 0;
     if (jMessage != nullptr) {
@@ -108,7 +108,7 @@ Java_mozilla_components_feature_cades_plugin_wrapper_JniWrapper_write(JNIEnv *en
 }
 extern "C"
 JNIEXPORT jint JNICALL
-Java_mozilla_components_feature_cades_plugin_wrapper_JniWrapper_license(JNIEnv *env, jclass clazz, jstring ocsp_lic, jstring tsp_lic) {
+Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_license(JNIEnv *env, jclass clazz, jstring ocsp_lic, jstring tsp_lic) {
     const char *szOcspLicense = nullptr;
     const char *szTspLicense = nullptr;
     jint ocspLicenseLen = 0;

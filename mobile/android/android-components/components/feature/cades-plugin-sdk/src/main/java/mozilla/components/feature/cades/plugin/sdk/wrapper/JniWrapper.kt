@@ -1,4 +1,4 @@
-package mozilla.components.feature.cades.plugin.wrapper
+package mozilla.components.feature.cades.plugin.sdk.wrapper
 
 class JniWrapper {
     companion object {

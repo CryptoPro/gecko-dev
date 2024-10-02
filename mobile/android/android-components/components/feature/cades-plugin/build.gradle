@@ -6,31 +6,7 @@ android {
         minSdkVersion config.minSdkVersion
         compileSdk config.compileSdkVersion
         targetSdkVersion config.targetSdkVersion
-        ndk {
-            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
-        }
-    }
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging true
-            keepDebugSymbols += ['*/arm64-v8a/*.so', '*/armeabi-v7a/*.so', '*/x86_64/*.so', '*/x86/*.so']
-        }
-    }
-    externalNativeBuild {
-        cmake {
-            path file('src/main/cpp/CMakeLists.txt')
-            version '3.22.1'
-        }
-    }
-    sourceSets {
-        main {
-            // Application resources.
-            res.srcDirs = ['src/main/res']
-            // Resources from android-native-csp.
-            res.srcDirs += ['android-native-csp/resources/res']
-            // so from android-native-csp (CMakeFiles.txt).
-            jniLibs.srcDirs = ['android-native-csp/jniLibs']
-        }
+
     }
     buildTypes {
         release {
@@ -38,7 +14,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     namespace 'mozilla.components.feature.cades.plugin'
 }
 
@@ -58,12 +33,7 @@ dependencies {
     testImplementation ComponentsDependencies.testing_coroutines
 
     // CSP
-    compileOnly fileTree(dir: 'android-native-csp/aar', include: ['*.jar', '*.aar'])
-    // UI
-    implementation ComponentsDependencies.androidx_appcompat
-    implementation ComponentsDependencies.androidx_constraintlayout
-    implementation ComponentsDependencies.google_material
-
+    implementation (project(":feature-cades-plugin-sdk"))
 }
 
 apply from: '../../../android-lint.gradle'

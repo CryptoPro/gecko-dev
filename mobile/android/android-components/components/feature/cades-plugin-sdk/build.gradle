@@ -1,0 +1,94 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            setUrl("https://jitpack.io")
+            content {
+                includeGroup("com.github.aasitnikov")
+            }
+        }
+    }
+
+    dependencies {
+        classpath 'com.github.aasitnikov:fat-aar-android:1.4.1'
+    }
+}
+
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+apply plugin: 'com.kezong.fat-aar'
+
+repositories {
+    flatDir {
+        dirs './android-native-csp/aar'
+    }
+}
+
+android {
+    defaultConfig {
+        minSdkVersion config.minSdkVersion
+        compileSdk config.compileSdkVersion
+        targetSdkVersion config.targetSdkVersion
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+        }
+    }
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging true
+            keepDebugSymbols += [
+                '*/arm64-v8a/libcspjni.so',
+                '*/arm64-v8a/libsupport.so',
+                '*/armeabi-v7a/libcspjni.so',
+                '*/armeabi-v7a/libsupport.so',
+                '*/x86_64/libcspjni.so',
+                '*/x86_64/libsupport.so',
+                '*/x86/libcspjni.so',
+                '*/x86/libsupport.so'
+            ]
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.22.1'
+        }
+    }
+    sourceSets {
+        main {
+            res.srcDirs += ['android-native-csp/resources/res']
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    namespace 'mozilla.components.feature.cades.plugin.sdk'
+    fataar {
+        transitive = true
+    }
+}
+
+dependencies {
+    implementation project(':support-base')
+    // CSP
+    embed (name:'csp-base', ext:'aar')
+    embed (name:'csp-gui', ext:'aar')
+    // UI
+    implementation ComponentsDependencies.androidx_appcompat
+    implementation ComponentsDependencies.androidx_constraintlayout
+    implementation ComponentsDependencies.google_material
+}

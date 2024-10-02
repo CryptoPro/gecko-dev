@@ -273,7 +273,16 @@ android {
         }
         jniLibs {
             useLegacyPackaging true
-            keepDebugSymbols += ['*/arm64-v8a/*.so', '*/armeabi-v7a/*.so', '*/x86_64/*.so', '*/x86/*.so']
+            keepDebugSymbols += [
+                '*/arm64-v8a/libcspjni.so',
+                '*/arm64-v8a/libsupport.so',
+                '*/armeabi-v7a/libcspjni.so',
+                '*/armeabi-v7a/libsupport.so',
+                '*/x86_64/libcspjni.so',
+                '*/x86_64/libsupport.so',
+                '*/x86/libcspjni.so',
+                '*/x86/libsupport.so'
+            ]
         }
     }
 
@@ -623,7 +632,6 @@ dependencies {
     implementation project(':feature-webcompat-reporter')
 
     implementation project(':feature-cades-plugin')
-    implementation fileTree(dir: '../../android-components/components/feature/cades-plugin/android-native-csp/aar', include: ['*.jar', '*.aar']) // CSP
 
     implementation project(':service-pocket')
     implementation project(':service-contile')

@@ -2,7 +2,7 @@ package mozilla.components.feature.cades.plugin
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import mozilla.components.feature.cades.plugin.wrapper.JniWrapper
+import mozilla.components.feature.cades.plugin.sdk.wrapper.JniWrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -44,7 +44,7 @@ class CAdESPluginFeature(
                         // Нужно дождаться завершения инициализации. Она делается один раз.
                         runBlocking {
                             withContext(Dispatchers.IO) {
-                                CAdESPlugin.init(context, logger)
+                                CAdESPlugin.init(context)
                             }
                         }
                         // Реакция на изменения на вкладках.

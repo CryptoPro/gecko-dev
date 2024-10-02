@@ -2,64 +2,37 @@ package mozilla.components.feature.cades.plugin
 
 import android.annotation.SuppressLint
 import android.content.Context
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import mozilla.components.feature.cades.plugin.wrapper.JniWrapper
-import mozilla.components.support.base.log.logger.Logger
-import ru.CryptoPro.JCSP.NCSPConfig
+import mozilla.components.feature.cades.plugin.sdk.wrapper.JniInit
 import kotlin.concurrent.thread
 
-class CAdESPlugin private constructor(val context: Context, val logger: Logger) {
+class CAdESPlugin private constructor(context: Context) {
     companion object {
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: CAdESPlugin? = null
-        fun init(context: Context, logger: Logger): CAdESPlugin {
+        fun init(context: Context): CAdESPlugin {
             var localRef = instance
             if (localRef == null) {
                 synchronized(this) {
                     localRef = instance
                     if (localRef == null) {
-                        localRef = CAdESPlugin(context, logger)
+                        localRef = CAdESPlugin(context)
                     }
                     instance = localRef
                 }
             }
             return localRef!!
         }
-        internal const val CAdES_OCSP_LICENSE = "0A202-U0030-00ECW-RRLMF-UU2WK"
-        internal const val CAdES_TSP_LICENSE = "TA200-G0030-00ECW-RRLNE-BTDVV"
+
     }
     init {
         // Инициализация провайдера должна быть первой!
-        initNativeCSP()
-        installLicenses()
+        JniInit.initNativeCSP(context)
+        JniInit.installLicenses()
         thread {
             // Запуск в вечном потоке цикла только после инициализации провайдера!
-            initMainCircle()
+            JniInit.initMainCircle(context)
         }
     }
-    private fun initNativeCSP() {
-        logger.info("Initiating native CSP...")
-        val error = NCSPConfig.init(context)
-        if (error != NCSPConfig.CSP_INIT_OK) {
-            logger.error("Initiating native CSP failed with error $error")
-        }
-    }
-    private fun installLicenses() {
-        logger.info("Installing CSP licenses...")
-        // Установка триальных лицензий.
-        val error = JniWrapper.license(CAdES_OCSP_LICENSE, CAdES_TSP_LICENSE)
-        if (error != 0) {
-            logger.error("CSP licenses not set, failed with error $error")
-        }
-    }
-    private fun initMainCircle() {
-        logger.info("Initiating main message circle...")
-        // Цикл обработки nmcades'ом сообщений из javascript.
-        val error = JniWrapper.main(context.applicationInfo.dataDir)
-        if (error != 0) {
-            logger.error("Main message circle failed with error $error")
-        }
-    }
+
 }

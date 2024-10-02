@@ -1452,6 +1452,12 @@ projects:
       Compatibility team.
     path: components/feature/cades-plugin
     publish: true
+    upstream_dependencies:
+    - feature-cades-plugin-sdk
+  feature-cades-plugin-sdk:
+    description: Android Native CSP SDK for CAdES Browser Plug-in
+    path: components/feature/cades-plugin-sdk
+    publish: true
   feature-webnotifications:
     description: Feature component for Web Notifications.
     path: components/feature/webnotifications

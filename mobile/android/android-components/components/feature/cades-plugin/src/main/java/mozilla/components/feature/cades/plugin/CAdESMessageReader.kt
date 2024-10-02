@@ -1,7 +1,7 @@
 package mozilla.components.feature.cades.plugin
 
 import mozilla.components.concept.engine.webextension.Port
-import mozilla.components.feature.cades.plugin.wrapper.JniWrapper
+import mozilla.components.feature.cades.plugin.sdk.wrapper.JniWrapper
 import mozilla.components.support.base.log.logger.Logger
 import org.json.JSONObject
 
