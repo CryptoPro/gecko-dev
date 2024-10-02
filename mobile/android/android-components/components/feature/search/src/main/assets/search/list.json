@@ -265,6 +265,8 @@
     },
     "en-US": {
       "default": {
+        "searchDefault": "Yandex",
+        "searchOrder": ["Yandex", "Google", "Bing"],
         "visibleDefaultEngines": [
           "yandex-en", "google-b-m", "bing", "amazondotcom", "ddg", "ebay", "wikipedia"
         ]
