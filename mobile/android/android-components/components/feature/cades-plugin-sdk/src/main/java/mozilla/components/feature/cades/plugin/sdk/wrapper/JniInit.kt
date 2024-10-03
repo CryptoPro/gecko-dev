@@ -20,8 +20,8 @@ class JniInit {
         private const val PRODUCT_NAME = "cades-plugin-sdk"
         private val logger = Logger(PRODUCT_NAME)
 
-        private const val CADES_OCSP_LICENSE = "0A20F-Z3010-00K9F-E5X3Q-KAQZ9"
-        private const val CADES_TSP_LICENSE = "TA20T-F3010-00K9F-94MYY-U841P"
+        private const val CADES_OCSP_LICENSE = "0A20B-83010-00KAN-9Q3BW-8EQDV"
+        private const val CADES_TSP_LICENSE = "TA20D-H3010-00KAN-GF6KF-MVN4R"
 
         @JvmStatic
         fun initNativeCSP(context: Context) {
