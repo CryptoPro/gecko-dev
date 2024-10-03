@@ -157,7 +157,7 @@ object ComponentsDependencies {
     const val androidx_camera_lifecycle = "androidx.camera:camera-lifecycle:${Versions.AndroidX.cameracore}"
     const val androidx_camera_mlkit_vision = "androidx.camera:camera-mlkit-vision:${Versions.AndroidX.cameramlkitvision}"
     const val androidx_camera_view = "androidx.camera:camera-view:${Versions.AndroidX.cameracore}"
-    const val barcode_scanning = "com.google.mlkit:barcode-scanning${Versions.Google.barcodescanning}"
+    const val barcode_scanning = "com.google.mlkit:barcode-scanning:${Versions.Google.barcodescanning}"
 
     const val androidx_compose_bom = "androidx.compose:compose-bom:${Versions.AndroidX.compose_bom}"
     const val androidx_compose_animation = "androidx.compose.animation:animation"
