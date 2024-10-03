@@ -60,6 +60,8 @@ object Versions {
         const val benchmark = "1.3.1"
         const val biometric = "1.1.0"
         const val browser = "1.8.0"
+        const val cameracore = "1.3.4"
+        const val cameramlkitvision = "1.2.0-beta02"
         const val cardview = "1.0.0"
         const val collection = "1.4.4"
         const val compose_bom = "2024.09.02"
@@ -93,6 +95,7 @@ object Versions {
     const val protobuf_plugin = "0.9.4"
     object Google {
         const val accompanist = "0.36.0"
+        const val barcodescanning = "17.3.0"
         const val firebase_messaging = "24.0.1"
         const val material = "1.12.0"
         const val osslicenses_plugin = "0.10.6"
@@ -148,6 +151,13 @@ object ComponentsDependencies {
     const val androidx_browser = "androidx.browser:browser:${Versions.AndroidX.browser}"
     const val androidx_cardview = "androidx.cardview:cardview:${Versions.AndroidX.cardview}"
     const val androidx_collection = "androidx.collection:collection:${Versions.AndroidX.collection}"
+
+    const val androidx_camera_camera2 = "androidx.camera:camera-camera2:${Versions.AndroidX.cameracore}"
+    const val androidx_camera_core = "androidx.camera:camera-core:${Versions.AndroidX.cameracore}"
+    const val androidx_camera_lifecycle = "androidx.camera:camera-lifecycle:${Versions.AndroidX.cameracore}"
+    const val androidx_camera_mlkit_vision = "androidx.camera:camera-mlkit-vision:${Versions.AndroidX.cameramlkitvision}"
+    const val androidx_camera_view = "androidx.camera:camera-view:${Versions.AndroidX.cameracore}"
+    const val barcode_scanning = "com.google.mlkit:barcode-scanning${Versions.Google.barcodescanning}"
 
     const val androidx_compose_bom = "androidx.compose:compose-bom:${Versions.AndroidX.compose_bom}"
     const val androidx_compose_animation = "androidx.compose.animation:animation"

@@ -773,6 +773,13 @@ dependencies {
     implementation(fileTree("../../android-components/components/feature/cades-plugin-sdk/android-native-csp/aar") {
         include("*.aar")
     })
+
+    implementation ComponentsDependencies.androidx_camera_camera2
+    implementation ComponentsDependencies.androidx_camera_core
+    implementation ComponentsDependencies.androidx_camera_lifecycle
+    implementation ComponentsDependencies.androidx_camera_mlkit_vision
+    implementation ComponentsDependencies.androidx_camera_view
+    implementation ComponentsDependencies.barcode_scanning
 }
 
 protobuf {
