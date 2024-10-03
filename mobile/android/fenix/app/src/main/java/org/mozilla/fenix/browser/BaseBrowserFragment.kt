@@ -2678,7 +2678,6 @@ abstract class BaseBrowserFragment :
             FenixSnackbar.make(
                 view = binding.dynamicSnackbarContainer,
                 duration = FenixSnackbar.LENGTH_LONG,
-                isDisplayedWithBrowserToolbar = true,
                 isError = isError
             )
                 .setText(text)
