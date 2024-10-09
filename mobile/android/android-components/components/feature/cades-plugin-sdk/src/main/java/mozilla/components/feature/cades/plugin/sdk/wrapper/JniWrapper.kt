@@ -26,6 +26,9 @@ class JniWrapper {
         external fun licenseCsp(csp_lic: String, user: String, company: String): Int
 
         @JvmStatic
+        external fun errorMessage(error_code: Long): String
+
+        @JvmStatic
         external fun installPfx(pfx: String, password: String): Int
 
         @JvmStatic

@@ -19,6 +19,8 @@ extern "C" int license_wrapper(const char* ocsp_lic, const char* tsp_lic);
 extern "C" int install_pfx_wrapper(const char* pfx, const char* password);
 extern "C" int install_root_cert_wrapper(const char* cert);
 extern "C" int license_csp_wrapper(const char* csp_lic, const char* user, const char* company);
+extern "C" const char* error_message_wrapper(int code);
+
 
 static int fd_in = 0, fd_out = 0;
 
@@ -192,4 +194,14 @@ extern "C"
     env->ReleaseStringUTFChars(cert, szCert);
   }
   return result;
+}
+
+extern "C"
+    JNIEXPORT jstring JNICALL
+    Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_errorMessage(JNIEnv *env, jclass clazz, jint code) {
+  auto result = error_message_wrapper(code);
+  if (result != nullptr) {
+    return env->NewStringUTF(result);
+  }
+  return nullptr;
 }
