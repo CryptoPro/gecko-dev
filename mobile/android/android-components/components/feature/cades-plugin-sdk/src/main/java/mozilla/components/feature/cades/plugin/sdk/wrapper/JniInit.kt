@@ -5,9 +5,14 @@ import android.content.DialogInterface
 import android.net.Uri
 import android.view.LayoutInflater
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import mozilla.components.feature.cades.plugin.sdk.R
 import mozilla.components.support.base.log.logger.Logger
-import org.apache.commons.codec.binary.Base32
 import org.apache.commons.codec.binary.Base64
 import ru.CryptoPro.JCSP.NCSPConfig
 import ru.cprocsp.URIManager.CRLManager
@@ -27,7 +32,7 @@ class JniInit {
         private const val CADES_OCSP_LICENSE = "0A20B-83010-00KAN-9Q3BW-8EQDV"
         private const val CADES_TSP_LICENSE = "TA20D-H3010-00KAN-GF6KF-MVN4R"
 
-        private const val RESULT_INSTALL_OK = -1
+        private const val RESULT_INSTALL_OK = 0
         private const val RESULT_INSTALL_ERROR = -2
         private const val RESULT_ERROR_INVALID_PASSWORD: Int = -3
 
@@ -62,54 +67,55 @@ class JniInit {
 
         @JvmStatic
         fun importQr(context: Context, uri: Uri, onShowSnackbar: (String, Boolean) -> Unit) {
-            try {
-                val uriManager = URIManagerFactory.getInstance(uri, context)
-                val listener: URIManagerFactory.ContentListener = URIManagerFactory.ContentListener { content, _ ->
-                    content?.let { it ->
-                        var messageId: Int = -1
-                        var isError = false
-                        val base32 = Base32()
-                        val base64 = Base64()
-                        val base64Data = base64.encodeAsString(base32.decode(it))
-                        when(uriManager) {
-                            is RootCertificateManager -> {
-                                val resultCode = JniWrapper.installRootCert(base64Data)
-                                if (resultCode == RESULT_INSTALL_OK) {
-                                    messageId = R.string.cert_installation_success
-                                } else {
-                                    messageId = R.string.cert_installation_failed
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val uriManager = URIManagerFactory.getInstance(uri, context)
+                    val listener: URIManagerFactory.ContentListener = URIManagerFactory.ContentListener { content, _ ->
+                        content?.let { it ->
+                            var messageId: Int = -1
+                            var isError = false
+                            val base64 = Base64()
+                            val base64Data = base64.encodeAsString(it)
+                            when(uriManager) {
+                                is RootCertificateManager -> {
+                                    val resultCode = JniWrapper.installRootCert(base64Data)
+                                    if (resultCode == RESULT_INSTALL_OK) {
+                                        messageId = R.string.cert_installation_success
+                                    } else {
+                                        messageId = R.string.cert_installation_failed
+                                        isError = true
+                                    }
+                                }
+                                is CRLManager -> {
+                                }
+                                is IntermediateCertificateManager -> {
+                                }
+                                is PFXManager -> {
+                                    val resultCode = JniWrapper.installPfx(base64Data, "")
+                                    checkPfxResultCode(context, base64Data, resultCode, onShowSnackbar)
+                                }
+                                is LicenseManager -> {
+                                    val resultCode = JniWrapper.licenseCsp(it.toString(), "", "")
+                                    if (resultCode == RESULT_INSTALL_OK) {
+                                        messageId = R.string.license_installation_success
+                                    } else {
+                                        messageId = R.string.license_installation_failed
+                                        isError = true
+                                    }
+                                }
+                                else -> {
+                                    messageId = R.string.InvalidURIFormat
                                     isError = true
                                 }
                             }
-                            is CRLManager -> {
-                            }
-                            is IntermediateCertificateManager -> {
-                            }
-                            is PFXManager -> {
-                                val resultCode = JniWrapper.installPfx(base64Data, "")
-                                checkPfxResultCode(context, base64Data, resultCode, onShowSnackbar)
-                            }
-                            is LicenseManager -> {
-                                val resultCode = JniWrapper.licenseCsp(base64Data, "", "")
-                                if (resultCode == RESULT_INSTALL_OK) {
-                                    messageId = R.string.license_installation_success
-                                } else {
-                                    messageId = R.string.license_installation_failed
-                                    isError = true
-                                }
-                            }
-                            else -> {
-                                messageId = R.string.InvalidURIFormat
-                                isError = true
-                            }
+                            if (messageId != -1) onShowSnackbar(context.getString(messageId), isError)
                         }
-                        if (messageId != -1) onShowSnackbar(context.getString(messageId), isError)
                     }
+                    uriManager.setListener(listener)
+                    uriManager.addContent(context, uri)
+                } catch (e : Exception) {
+                    onShowSnackbar(e.message ?: context.getString(R.string.InvalidURIFormat), true)
                 }
-                uriManager.setListener(listener)
-                uriManager.addContent(context, uri)
-            } catch (e : Exception) {
-                onShowSnackbar(e.message ?: context.getString(R.string.InvalidURIFormat), true)
             }
         }
 
