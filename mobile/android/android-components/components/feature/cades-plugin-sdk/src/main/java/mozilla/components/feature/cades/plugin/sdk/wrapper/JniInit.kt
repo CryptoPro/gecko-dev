@@ -1,7 +1,10 @@
 package mozilla.components.feature.cades.plugin.sdk.wrapper
 
 import android.content.Context
+import android.content.DialogInterface
 import android.net.Uri
+import android.view.LayoutInflater
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import mozilla.components.feature.cades.plugin.sdk.R
 import mozilla.components.support.base.log.logger.Logger
 import org.apache.commons.codec.binary.Base32
@@ -13,6 +16,7 @@ import ru.cprocsp.URIManager.LicenseManager
 import ru.cprocsp.URIManager.PFXManager
 import ru.cprocsp.URIManager.RootCertificateManager
 import ru.cprocsp.URIManager.URIManagerFactory
+import ru.cprocsp.qrscanner.databinding.PasswordDialogBinding
 
 class JniInit {
     companion object {
@@ -83,14 +87,7 @@ class JniInit {
                             }
                             is PFXManager -> {
                                 val resultCode = JniWrapper.installPfx(base64Data, "")
-                                when(resultCode) {
-                                    RESULT_INSTALL_OK -> messageId = R.string.pfx_installation_success
-                                    RESULT_ERROR_INVALID_PASSWORD -> {}
-                                    else -> {
-                                        messageId = R.string.pfx_installation_failed
-                                        isError = true
-                                    }
-                                }
+                                checkPfxResultCode(context, base64Data, resultCode, onShowSnackbar)
                             }
                             is LicenseManager -> {
                                 val resultCode = JniWrapper.licenseCsp(base64Data, "", "")
@@ -114,6 +111,50 @@ class JniInit {
             } catch (e : Exception) {
                 onShowSnackbar(e.message ?: context.getString(R.string.InvalidURIFormat), true)
             }
+        }
+
+        @JvmStatic
+        private fun checkPfxResultCode(context: Context, base64Data: String, resultCode: Int,
+                                       onShowSnackbar: (String, Boolean) -> Unit) {
+            val messageId: Int
+            var isError = false
+            when(resultCode) {
+                RESULT_INSTALL_OK -> messageId = R.string.pfx_installation_success
+                RESULT_ERROR_INVALID_PASSWORD -> {
+                    messageId = R.string.pfx_invalid_password
+                    isError = true
+                    showPfxPasswordDialog(context, base64Data, onShowSnackbar)
+                }
+                else -> {
+                    messageId = R.string.pfx_installation_failed
+                    isError = true
+                }
+            }
+            onShowSnackbar(context.getString(messageId), isError)
+        }
+
+        @JvmStatic
+        private fun showPfxPasswordDialog(context: Context, base64Data: String,
+                                          onShowSnackbar: (String, Boolean) -> Unit) {
+            val passwordDialogBinding = PasswordDialogBinding.inflate(LayoutInflater.from(context))
+            val title = context.getString(R.string.pfx_enter_password)
+            MaterialAlertDialogBuilder(context, R.style.CryptoPro_MaterialAlertDialog).apply {
+                setTitle(title)
+                setView(passwordDialogBinding.root)
+                setPositiveButton(android.R.string.ok) { _, _ ->
+                    val password: String = passwordDialogBinding.etPassword.getText().toString()
+                    var resultCode = JniWrapper.installPfx(base64Data, password)
+                    if (resultCode == RESULT_ERROR_INVALID_PASSWORD)
+                        resultCode = RESULT_INSTALL_ERROR
+                    checkPfxResultCode(context, base64Data, resultCode, onShowSnackbar)
+                }
+                setNegativeButton(android.R.string.cancel) { dialog: DialogInterface, _ ->
+                    dialog.cancel()
+                    checkPfxResultCode(context, "", RESULT_INSTALL_ERROR, onShowSnackbar)
+                }
+                setCancelable(false)
+                create()
+            }.show()
         }
     }
 }
