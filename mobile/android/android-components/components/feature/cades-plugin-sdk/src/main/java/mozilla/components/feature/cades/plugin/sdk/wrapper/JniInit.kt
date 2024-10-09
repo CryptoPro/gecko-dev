@@ -74,10 +74,9 @@ class JniInit {
                         content?.let { it ->
                             var messageId: Int = -1
                             var isError = false
-                            val base64 = Base64()
-                            val base64Data = base64.encodeAsString(it)
                             when(uriManager) {
                                 is RootCertificateManager -> {
+                                    val base64Data = Base64().encodeAsString(it)
                                     val resultCode = JniWrapper.installRootCert(base64Data)
                                     if (resultCode == RESULT_INSTALL_OK) {
                                         messageId = R.string.cert_installation_success
@@ -91,11 +90,12 @@ class JniInit {
                                 is IntermediateCertificateManager -> {
                                 }
                                 is PFXManager -> {
+                                    val base64Data = Base64().encodeAsString(it)
                                     val resultCode = JniWrapper.installPfx(base64Data, "")
                                     checkPfxResultCode(context, base64Data, resultCode, onShowSnackbar)
                                 }
                                 is LicenseManager -> {
-                                    val resultCode = JniWrapper.licenseCsp(it.toString(), "", "")
+                                    val resultCode = JniWrapper.licenseCsp(it.toString(Charsets.UTF_8), "", "")
                                     if (resultCode == RESULT_INSTALL_OK) {
                                         messageId = R.string.license_installation_success
                                     } else {
