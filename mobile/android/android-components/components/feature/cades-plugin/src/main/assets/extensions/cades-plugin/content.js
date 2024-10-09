@@ -279,6 +279,17 @@
         }
     }, false);
 
+    // Обработка запуска QR-сканера
+    window.addEventListener("message", function(event) {
+        if (event.source !== window)
+            return;
+        //alert(event.data);
+        if(event.data === "LAUNCH_QR_SCANNER")
+        {
+            g_bg_port.postMessage("LAUNCH_QR_SCANNER");
+        }
+    }, false);
+
     // CADES-2138
     function singlePostMessage(answer) {
         console.log("singlePostMessage");
