@@ -16,6 +16,9 @@ extern "C" int main_wrapper(int pipe_in, int pipe_out);
 extern "C" const char* read_wrapper();
 extern "C" int write_wrapper(const char* request, int length);
 extern "C" int license_wrapper(const char* ocsp_lic, const char* tsp_lic);
+extern "C" int install_pfx_wrapper(const char* pfx, const char* password);
+extern "C" int install_root_cert_wrapper(const char* cert);
+extern "C" int license_csp_wrapper(const char* csp_lic, const char* user, const char* company);
 
 static int fd_in = 0, fd_out = 0;
 
@@ -129,4 +132,64 @@ Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_license(JNIE
         env->ReleaseStringUTFChars(tsp_lic, szTspLicense);
     }
     return result;
+}
+extern "C"
+    JNIEXPORT jint JNICALL
+    Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_licenseCsp(JNIEnv *env, jclass clazz, jstring csp_lic, jstring user, jstring company) {
+  const char *szCspLicense = nullptr;
+  const char *szUser = nullptr;
+  const char *szCompany = nullptr;
+  if (csp_lic != nullptr) {
+    szCspLicense = env->GetStringUTFChars(csp_lic, JNI_FALSE);
+  }
+  if (user != nullptr) {
+    szUser = env->GetStringUTFChars(user, JNI_FALSE);
+  }
+  if (company != nullptr) {
+    szCompany = env->GetStringUTFChars(company, JNI_FALSE);
+  }
+  auto result = license_csp_wrapper(szCspLicense, szUser, szCompany);
+  if (szCspLicense != nullptr) {
+    env->ReleaseStringUTFChars(csp_lic, szCspLicense);
+  }
+  if (szUser != nullptr) {
+    env->ReleaseStringUTFChars(user, szUser);
+  }
+  if (szCompany != nullptr) {
+    env->ReleaseStringUTFChars(company, szCompany);
+  }
+  return result;
+}
+extern "C"
+    JNIEXPORT jint JNICALL
+    Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_installPfx(JNIEnv *env, jclass clazz, jstring pfx, jstring password) {
+  const char *szPfx = nullptr;
+  const char *szPassword = nullptr;
+  if (pfx != nullptr) {
+    szPfx = env->GetStringUTFChars(pfx, JNI_FALSE);
+  }
+  if (password != nullptr) {
+    szPassword = env->GetStringUTFChars(password, JNI_FALSE);
+  }
+  auto result = install_pfx_wrapper(szPfx, szPassword);
+  if (szPfx != nullptr) {
+    env->ReleaseStringUTFChars(pfx, szPfx);
+  }
+  if (szPassword != nullptr) {
+    env->ReleaseStringUTFChars(password, szPassword);
+  }
+  return result;
+}
+extern "C"
+    JNIEXPORT jint JNICALL
+    Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_installRootCert(JNIEnv *env, jclass clazz, jstring cert) {
+  const char *szCert = nullptr;
+  if (cert != nullptr) {
+    szCert = env->GetStringUTFChars(cert, JNI_FALSE);
+  }
+  auto result = install_root_cert_wrapper(szCert);
+  if (szCert != nullptr) {
+    env->ReleaseStringUTFChars(cert, szCert);
+  }
+  return result;
 }
