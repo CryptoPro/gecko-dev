@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cert_installation_success">Установлен корневой сертификат.</string>
+    <string name="cert_installation_failed">Не удалось установить корневой сертификат!</string>
+    <string name="license_installation_success">Лицензия успешно введена.</string>
+    <string name="license_installation_failed">Ошибка при вводе номера лицензии!</string>
+    <string name="pfx_installation_success">Сертификаты и ключи из pfx-контейнера успешно сохранены.</string>
+    <string name="pfx_installation_failed">Содержимое pfx-контейнера не сохранено!</string>
+    <string name="pfx_enter_password">Введите пароль для доступа к pfx контейнеру.</string>
+    <string name="pfx_invalid_password">Введен неверный пароль к pfx контейнеру.</string>
+</resources>

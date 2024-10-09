@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cert_installation_success" translatable="false">Root certificate has been installed successfully.</string>
+    <string name="cert_installation_failed" translatable="false">Root certificate has not been installed!</string>
+    <string name="license_installation_success" translatable="false">Serial number has been installed successfully.</string>
+    <string name="license_installation_failed" translatable="false">An error occurred after entering the serial number!</string>
+    <string name="pfx_installation_success" translatable="false">Certificates and keys from the pfx container have been saved successfully.</string>
+    <string name="pfx_installation_failed" translatable="false">Content of the pfx container has not been saved!</string>
+    <string name="pfx_enter_password" translatable="false">Enter a password for the pfx container.</string>
+    <string name="pfx_invalid_password" translatable="false">Invalid password has been entered.</string>
+</resources>
