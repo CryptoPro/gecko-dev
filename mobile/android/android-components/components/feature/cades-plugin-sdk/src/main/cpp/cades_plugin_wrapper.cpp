@@ -195,7 +195,6 @@ extern "C"
   }
   return result;
 }
-
 extern "C"
     JNIEXPORT jstring JNICALL
     Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_errorMessage(JNIEnv *env, jclass clazz, jint code) {

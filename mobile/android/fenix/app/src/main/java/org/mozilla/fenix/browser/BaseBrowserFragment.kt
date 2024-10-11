@@ -2674,14 +2674,16 @@ abstract class BaseBrowserFragment :
     }
 
     private fun onShowSnackbar(text: String, isError: Boolean) {
-        view?.let {
-            FenixSnackbar.make(
-                view = binding.dynamicSnackbarContainer,
-                duration = FenixSnackbar.LENGTH_LONG,
-                isError = isError
-            )
-                .setText(text)
-                .show()
+        viewLifecycleOwner.lifecycleScope.launch(Main) {
+            view?.let {
+                FenixSnackbar.make(
+                    view = binding.dynamicSnackbarContainer,
+                    duration = FenixSnackbar.LENGTH_LONG,
+                    isError = isError
+                )
+                    .setText(text)
+                    .show()
+            }
         }
     }
 }

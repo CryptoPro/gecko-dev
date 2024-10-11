@@ -4,12 +4,10 @@ import android.content.Context
 import android.content.DialogInterface
 import android.net.Uri
 import android.view.LayoutInflater
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mozilla.components.feature.cades.plugin.sdk.R
 import mozilla.components.support.base.log.logger.Logger
@@ -32,9 +30,8 @@ class JniInit {
         private const val CADES_OCSP_LICENSE = "0A20B-83010-00KAN-9Q3BW-8EQDV"
         private const val CADES_TSP_LICENSE = "TA20D-H3010-00KAN-GF6KF-MVN4R"
 
-        private const val RESULT_INSTALL_OK = 0
-        private const val RESULT_INSTALL_ERROR = -2
-        private const val RESULT_ERROR_INVALID_PASSWORD: Int = -3
+        private const val RESULT_INSTALL_OK = 0x00000000
+        private const val RESULT_ERROR_INVALID_PASSWORD = 0x80070056.toInt()
 
         @JvmStatic
         fun initNativeCSP(context: Context) {
@@ -72,43 +69,19 @@ class JniInit {
                     val uriManager = URIManagerFactory.getInstance(uri, context)
                     val listener: URIManagerFactory.ContentListener = URIManagerFactory.ContentListener { content, _ ->
                         content?.let { it ->
-                            var messageId: Int = -1
-                            var isError = false
                             when(uriManager) {
                                 is RootCertificateManager -> {
-                                    val base64Data = Base64().encodeAsString(it)
-                                    val resultCode = JniWrapper.installRootCert(base64Data)
-                                    if (resultCode == RESULT_INSTALL_OK) {
-                                        messageId = R.string.cert_installation_success
-                                    } else {
-                                        messageId = R.string.cert_installation_failed
-                                        isError = true
-                                    }
+                                    val resultCode = JniWrapper.installRootCert(Base64().encodeAsString(it))
+                                    onShowSnackbar(resultCode, context.getString(R.string.cert_installation_success), onShowSnackbar)
                                 }
-                                is CRLManager -> {
-                                }
-                                is IntermediateCertificateManager -> {
-                                }
-                                is PFXManager -> {
-                                    val base64Data = Base64().encodeAsString(it)
-                                    val resultCode = JniWrapper.installPfx(base64Data, "")
-                                    checkPfxResultCode(context, base64Data, resultCode, onShowSnackbar)
-                                }
+                                is PFXManager -> installPfx(context, Base64().encodeAsString(it), "", onShowSnackbar)
                                 is LicenseManager -> {
                                     val resultCode = JniWrapper.licenseCsp(it.toString(Charsets.UTF_8), "", "")
-                                    if (resultCode == RESULT_INSTALL_OK) {
-                                        messageId = R.string.license_installation_success
-                                    } else {
-                                        messageId = R.string.license_installation_failed
-                                        isError = true
-                                    }
+                                    onShowSnackbar(resultCode, context.getString(R.string.license_installation_success), onShowSnackbar)
                                 }
-                                else -> {
-                                    messageId = R.string.InvalidURIFormat
-                                    isError = true
-                                }
+                                is CRLManager -> {}
+                                is IntermediateCertificateManager -> {}
                             }
-                            if (messageId != -1) onShowSnackbar(context.getString(messageId), isError)
                         }
                     }
                     uriManager.setListener(listener)
@@ -120,47 +93,41 @@ class JniInit {
         }
 
         @JvmStatic
-        private fun checkPfxResultCode(context: Context, base64Data: String, resultCode: Int,
-                                       onShowSnackbar: (String, Boolean) -> Unit) {
-            val messageId: Int
-            var isError = false
-            when(resultCode) {
-                RESULT_INSTALL_OK -> messageId = R.string.pfx_installation_success
-                RESULT_ERROR_INVALID_PASSWORD -> {
-                    messageId = R.string.pfx_invalid_password
-                    isError = true
-                    showPfxPasswordDialog(context, base64Data, onShowSnackbar)
+        private fun installPfx(context: Context, base64Data: String, password: String, onShowSnackbar: (String, Boolean) -> Unit) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val resultCode = JniWrapper.installPfx(base64Data, password)
+                if (resultCode == RESULT_ERROR_INVALID_PASSWORD) {
+                    withContext(Dispatchers.Main) {
+                        showPfxPasswordDialog(context, base64Data, onShowSnackbar)
+                    }
                 }
-                else -> {
-                    messageId = R.string.pfx_installation_failed
-                    isError = true
-                }
+                onShowSnackbar(resultCode, context.getString(R.string.pfx_installation_success), onShowSnackbar)
             }
-            onShowSnackbar(context.getString(messageId), isError)
         }
 
         @JvmStatic
         private fun showPfxPasswordDialog(context: Context, base64Data: String,
                                           onShowSnackbar: (String, Boolean) -> Unit) {
             val passwordDialogBinding = PasswordDialogBinding.inflate(LayoutInflater.from(context))
-            val title = context.getString(R.string.pfx_enter_password)
-            MaterialAlertDialogBuilder(context, R.style.CryptoPro_MaterialAlertDialog).apply {
-                setTitle(title)
+            AlertDialog.Builder(context).apply {
+                setTitle(context.getString(R.string.pfx_enter_password))
                 setView(passwordDialogBinding.root)
+                setNegativeButton(android.R.string.cancel) { dialog: DialogInterface, _ -> dialog.cancel() }
                 setPositiveButton(android.R.string.ok) { _, _ ->
                     val password: String = passwordDialogBinding.etPassword.getText().toString()
-                    var resultCode = JniWrapper.installPfx(base64Data, password)
-                    if (resultCode == RESULT_ERROR_INVALID_PASSWORD)
-                        resultCode = RESULT_INSTALL_ERROR
-                    checkPfxResultCode(context, base64Data, resultCode, onShowSnackbar)
-                }
-                setNegativeButton(android.R.string.cancel) { dialog: DialogInterface, _ ->
-                    dialog.cancel()
-                    checkPfxResultCode(context, "", RESULT_INSTALL_ERROR, onShowSnackbar)
+                    installPfx(context, base64Data, password, onShowSnackbar)
                 }
                 setCancelable(false)
                 create()
             }.show()
+        }
+
+        private fun onShowSnackbar(resultCode: Int, messageSuccess: String, onShowSnackbar: (String, Boolean) -> Unit) {
+            var message = JniWrapper.errorMessage(resultCode)
+            if (message.isNullOrEmpty() && resultCode == RESULT_INSTALL_OK) {
+                message = messageSuccess
+            }
+            message?.let { if (it.isNotEmpty()) onShowSnackbar(it, resultCode != RESULT_INSTALL_OK) }
         }
     }
 }
