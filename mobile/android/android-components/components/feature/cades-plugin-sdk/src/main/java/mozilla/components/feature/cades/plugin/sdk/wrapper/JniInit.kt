@@ -74,7 +74,7 @@ class JniInit {
                                     val resultCode = JniWrapper.installRootCert(Base64().encodeAsString(it))
                                     onShowSnackbar(resultCode, context.getString(R.string.cert_installation_success), onShowSnackbar)
                                 }
-                                is PFXManager -> installPfx(context, Base64().encodeAsString(it), "", onShowSnackbar)
+                                is PFXManager -> installPfx(context, Base64().encodeAsString(it), "", true, onShowSnackbar)
                                 is LicenseManager -> {
                                     val resultCode = JniWrapper.licenseCsp(it.toString(Charsets.UTF_8), "", "")
                                     onShowSnackbar(resultCode, context.getString(R.string.license_installation_success), onShowSnackbar)
@@ -93,13 +93,15 @@ class JniInit {
         }
 
         @JvmStatic
-        private fun installPfx(context: Context, base64Data: String, password: String, onShowSnackbar: (String, Boolean) -> Unit) {
+        private fun installPfx(context: Context, base64Data: String, password: String, isFirstCall: Boolean,
+                               onShowSnackbar: (String, Boolean) -> Unit) {
             CoroutineScope(Dispatchers.IO).launch {
                 val resultCode = JniWrapper.installPfx(base64Data, password)
-                if (resultCode == RESULT_ERROR_INVALID_PASSWORD) {
+                if (isFirstCall && resultCode == RESULT_ERROR_INVALID_PASSWORD) {
                     withContext(Dispatchers.Main) {
                         showPfxPasswordDialog(context, base64Data, onShowSnackbar)
                     }
+                    return@launch
                 }
                 onShowSnackbar(resultCode, context.getString(R.string.pfx_installation_success), onShowSnackbar)
             }
@@ -115,7 +117,7 @@ class JniInit {
                 setNegativeButton(android.R.string.cancel) { dialog: DialogInterface, _ -> dialog.cancel() }
                 setPositiveButton(android.R.string.ok) { _, _ ->
                     val password: String = passwordDialogBinding.etPassword.getText().toString()
-                    installPfx(context, base64Data, password, onShowSnackbar)
+                    installPfx(context, base64Data, password, false, onShowSnackbar)
                 }
                 setCancelable(false)
                 create()
