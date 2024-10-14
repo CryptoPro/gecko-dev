@@ -28,7 +28,8 @@ class CAdESPluginFeature(
     private val runtime: WebExtensionRuntime,
     private val store: BrowserStore,
     private val launchQr: () -> Unit,
-    private val onShowSnackbar: (String, Boolean) -> Unit
+    private val onShowSnackbar: (String, Boolean) -> Unit,
+    private val onShowPfxPasswordDialog: ((String) -> Unit) -> Unit
 ) : LifecycleAwareFeature, ActivityResultHandler {
 
     private var scope: CoroutineScope? = null
@@ -47,26 +48,26 @@ class CAdESPluginFeature(
             runtime,
             onSuccess = {
                     it ->
-                        // Нужно дождаться завершения инициализации. Она делается один раз.
-                        runBlocking {
-                            withContext(Dispatchers.IO) {
-                                CAdESPlugin.init(context)
+                // Нужно дождаться завершения инициализации. Она делается один раз.
+                runBlocking {
+                    withContext(Dispatchers.IO) {
+                        CAdESPlugin.init(context)
+                    }
+                }
+                // Реакция на изменения на вкладках.
+                scope = store.flowScoped { flow ->
+                    flow.map { it.tabs }
+                        .filterChanged { it.engineState.engineSession }
+                        .collect { tab ->
+                            val engineSession = tab.engineState.engineSession ?: return@collect
+                            if (it.hasContentMessageHandler(engineSession, CAdES_PLUGIN_MESSAGING_ID)) {
+                                return@collect
                             }
+                            logger.debug("registerContentMessageHandler with session $engineSession")
+                            extensionController.registerContentMessageHandler(engineSession, CAdESPluginMessageHandler(launchQr = launchQr), CAdES_PLUGIN_MESSAGING_ID)
                         }
-                        // Реакция на изменения на вкладках.
-                        scope = store.flowScoped { flow ->
-                            flow.map { it.tabs }
-                            .filterChanged { it.engineState.engineSession }
-                            .collect { tab ->
-                                val engineSession = tab.engineState.engineSession ?: return@collect
-                                if (it.hasContentMessageHandler(engineSession, CAdES_PLUGIN_MESSAGING_ID)) {
-                                    return@collect
-                                }
-                                logger.debug("registerContentMessageHandler with session $engineSession")
-                                extensionController.registerContentMessageHandler(engineSession, CAdESPluginMessageHandler(launchQr = launchQr), CAdES_PLUGIN_MESSAGING_ID)
-                            }
-                        }
-                    logger.debug("Installed CAdES Plug-in web extension: ${it.id}")
+                }
+                logger.debug("Installed CAdES Plug-in web extension: ${it.id}")
             },
             onError = { throwable ->
                 logger.error("Failed to install CAdES Plug-in web extension: ", throwable)
@@ -102,8 +103,9 @@ class CAdESPluginFeature(
                     JniInit.importQr(
                         context = context,
                         uri = uri,
-                        onShowSnackbar = { text, isError -> onShowSnackbar(text, isError) }
-                        )
+                        onShowSnackbar = { text, isError -> onShowSnackbar(text, isError) },
+                        onShowPfxPasswordDialog = { password -> onShowPfxPasswordDialog(password) }
+                    )
                 }
             }
             return true

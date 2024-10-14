@@ -193,6 +193,7 @@ import org.mozilla.fenix.compose.Divider
 import org.mozilla.fenix.crashes.CrashContentIntegration
 import org.mozilla.fenix.customtabs.ExternalAppBrowserActivity
 import org.mozilla.fenix.databinding.FragmentBrowserBinding
+import org.mozilla.fenix.databinding.PasswordDialogBinding
 import org.mozilla.fenix.downloads.DownloadService
 import org.mozilla.fenix.downloads.dialog.DynamicDownloadDialog
 import org.mozilla.fenix.downloads.dialog.FirstPartyDownloadDialog
@@ -1248,7 +1249,8 @@ abstract class BaseBrowserFragment :
                 requireComponents.core.engine,
                 requireComponents.core.store,
                 launchQr = ::launchQr,
-                onShowSnackbar = ::onShowSnackbar
+                onShowSnackbar = ::onShowSnackbar,
+                onShowPfxPasswordDialog = ::onShowPfxPasswordDialog
             ),
             owner = this,
             view = view,
@@ -2683,6 +2685,24 @@ abstract class BaseBrowserFragment :
                 )
                     .setText(text)
                     .show()
+            }
+        }
+    }
+
+    private fun onShowPfxPasswordDialog(ontPositiveButtonClick: (String) -> Unit) {
+        viewLifecycleOwner.lifecycleScope.launch(Main) {
+            view?.let {
+                val passwordDialogBinding = PasswordDialogBinding.inflate(LayoutInflater.from(requireContext()))
+                AlertDialog.Builder(requireContext()).apply {
+                    setTitle(getString(R.string.pfx_enter_password))
+                    setView(passwordDialogBinding.root)
+                    setNegativeButton(android.R.string.cancel) { dialog: DialogInterface, _ -> dialog.cancel() }
+                    setPositiveButton(android.R.string.ok) { _, _ ->
+                        ontPositiveButtonClick(passwordDialogBinding.etPassword.getText().toString())
+                    }
+                    setCancelable(false)
+                    create()
+                }.show().withCenterAlignedButtons().secure(activity)
             }
         }
     }

@@ -1,14 +1,10 @@
 package mozilla.components.feature.cades.plugin.sdk.wrapper
 
 import android.content.Context
-import android.content.DialogInterface
 import android.net.Uri
-import android.view.LayoutInflater
-import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import mozilla.components.feature.cades.plugin.sdk.R
 import mozilla.components.support.base.log.logger.Logger
 import org.apache.commons.codec.binary.Base64
@@ -19,7 +15,6 @@ import ru.cprocsp.URIManager.LicenseManager
 import ru.cprocsp.URIManager.PFXManager
 import ru.cprocsp.URIManager.RootCertificateManager
 import ru.cprocsp.URIManager.URIManagerFactory
-import ru.cprocsp.qrscanner.databinding.PasswordDialogBinding
 
 class JniInit {
     companion object {
@@ -63,7 +58,7 @@ class JniInit {
         }
 
         @JvmStatic
-        fun importQr(context: Context, uri: Uri, onShowSnackbar: (String, Boolean) -> Unit) {
+        fun importQr(context: Context, uri: Uri, onShowSnackbar: (String, Boolean) -> Unit, onShowPfxPasswordDialog: ((String) -> Unit) -> Unit) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val uriManager = URIManagerFactory.getInstance(uri, context)
@@ -74,7 +69,8 @@ class JniInit {
                                     val resultCode = JniWrapper.installRootCert(Base64().encodeAsString(it))
                                     onShowSnackbar(resultCode, context.getString(R.string.cert_installation_success), onShowSnackbar)
                                 }
-                                is PFXManager -> installPfx(context, Base64().encodeAsString(it), "", true, onShowSnackbar)
+                                is PFXManager -> installPfx(context, Base64().encodeAsString(it), "", true,
+                                    onShowSnackbar, onShowPfxPasswordDialog)
                                 is LicenseManager -> {
                                     val resultCode = JniWrapper.licenseCsp(it.toString(Charsets.UTF_8), "", "")
                                     onShowSnackbar(resultCode, context.getString(R.string.license_installation_success), onShowSnackbar)
@@ -94,34 +90,24 @@ class JniInit {
 
         @JvmStatic
         private fun installPfx(context: Context, base64Data: String, password: String, isFirstCall: Boolean,
-                               onShowSnackbar: (String, Boolean) -> Unit) {
+                               onShowSnackbar: (String, Boolean) -> Unit, onShowPfxPasswordDialog: ((String) -> Unit) -> Unit) {
             CoroutineScope(Dispatchers.IO).launch {
                 val resultCode = JniWrapper.installPfx(base64Data, password)
                 if (isFirstCall && resultCode == RESULT_ERROR_INVALID_PASSWORD) {
-                    withContext(Dispatchers.Main) {
-                        showPfxPasswordDialog(context, base64Data, onShowSnackbar)
+                    onShowPfxPasswordDialog { newPassword ->
+                        installPfx(
+                            context,
+                            base64Data,
+                            newPassword,
+                            false,
+                            onShowSnackbar,
+                            onShowPfxPasswordDialog
+                        )
                     }
                     return@launch
                 }
                 onShowSnackbar(resultCode, context.getString(R.string.pfx_installation_success), onShowSnackbar)
             }
-        }
-
-        @JvmStatic
-        private fun showPfxPasswordDialog(context: Context, base64Data: String,
-                                          onShowSnackbar: (String, Boolean) -> Unit) {
-            val passwordDialogBinding = PasswordDialogBinding.inflate(LayoutInflater.from(context))
-            AlertDialog.Builder(context).apply {
-                setTitle(context.getString(R.string.pfx_enter_password))
-                setView(passwordDialogBinding.root)
-                setNegativeButton(android.R.string.cancel) { dialog: DialogInterface, _ -> dialog.cancel() }
-                setPositiveButton(android.R.string.ok) { _, _ ->
-                    val password: String = passwordDialogBinding.etPassword.getText().toString()
-                    installPfx(context, base64Data, password, false, onShowSnackbar)
-                }
-                setCancelable(false)
-                create()
-            }.show()
         }
 
         private fun onShowSnackbar(resultCode: Int, messageSuccess: String, onShowSnackbar: (String, Boolean) -> Unit) {
