@@ -11,7 +11,7 @@ class JniWrapper {
         external fun main(path: String): Int
 
         @JvmStatic
-        external fun read(): String
+        external fun read(): ByteArray
 
         @JvmStatic
         external fun write(message: String, flags: Int): Int

@@ -19,9 +19,10 @@ class CAdESMessageReader(val logger: Logger): Thread() {
         logger.debug("Starting reader thread with port $port for session ${port?.engineSession}")
         while (!isInterrupted) {
             val e = JniWrapper.read();
+            val s = String(e)
             logger.debug("Read $e and post to port $port with session ${port?.engineSession}")
             synchronized(this) {
-                port?.postMessage(JSONObject(e))
+                port?.postMessage(JSONObject(s))
             }
         }
     }

@@ -88,11 +88,14 @@ Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_close(JNIEnv
 }
 
 extern "C"
-JNIEXPORT jstring JNICALL
+JNIEXPORT jbyteArray JNICALL
 Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_read(JNIEnv *env, jclass clazz) {
     auto result = read_wrapper();
     if (result != nullptr) {
-        return env->NewStringUTF(result);
+        size_t readLength = strlen(result);
+        jbyteArray jResultByteArray = env->NewByteArray((jsize)readLength);
+        env->SetByteArrayRegion(jResultByteArray, 0, (jsize)readLength, (jbyte*)(result));
+        return jResultByteArray;
     }
     return nullptr;
 }
