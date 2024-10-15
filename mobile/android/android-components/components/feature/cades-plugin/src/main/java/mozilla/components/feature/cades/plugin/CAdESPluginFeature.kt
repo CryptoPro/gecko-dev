@@ -7,7 +7,7 @@ import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mozilla.components.browser.state.store.BrowserStore
@@ -47,7 +47,6 @@ class CAdESPluginFeature(
         extensionController.install(
             runtime,
             onSuccess = {
-                    it ->
                 // Нужно дождаться завершения инициализации. Она делается один раз.
                 runBlocking {
                     withContext(Dispatchers.IO) {
@@ -56,22 +55,21 @@ class CAdESPluginFeature(
                 }
                 // Реакция на изменения на вкладках.
                 scope = store.flowScoped { flow ->
-                    flow.map { it.tabs }
+                    flow.mapNotNull { it.tabs  }
                         .filterChanged { it.engineState.engineSession }
-                        .collect { tab ->
-                            val engineSession = tab.engineState.engineSession ?: return@collect
-                            if (it.hasContentMessageHandler(engineSession, CAdES_PLUGIN_MESSAGING_ID)) {
-                                return@collect
+                        .collect {
+                            it.engineState.engineSession?.let { engineSession ->
+                                logger.debug("registerContentMessageHandler with session $engineSession")
+                                extensionController.registerContentMessageHandler(engineSession, CAdESPluginMessageHandler(launchQr = launchQr), CAdES_PLUGIN_MESSAGING_ID)
                             }
-                            logger.debug("registerContentMessageHandler with session $engineSession")
-                            extensionController.registerContentMessageHandler(engineSession, CAdESPluginMessageHandler(launchQr = launchQr), CAdES_PLUGIN_MESSAGING_ID)
                         }
                 }
                 logger.debug("Installed CAdES Plug-in web extension: ${it.id}")
             },
             onError = { throwable ->
                 logger.error("Failed to install CAdES Plug-in web extension: ", throwable)
-            },)
+            })
+
     }
 
     override fun stop() {
