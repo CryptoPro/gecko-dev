@@ -22,8 +22,8 @@ class JniInit {
         private const val PRODUCT_NAME = "cades-plugin-sdk"
         private val logger = Logger(PRODUCT_NAME)
 
-        private const val CADES_OCSP_LICENSE = "0A20B-83010-00KAN-9Q3BW-8EQDV"
-        private const val CADES_TSP_LICENSE = "TA20D-H3010-00KAN-GF6KF-MVN4R"
+        private const val CADES_OCSP_LICENSE = "0A20Y-L3010-00KCZ-U49HK-1L7P6"
+        private const val CADES_TSP_LICENSE = "TA20X-Z3010-00KCZ-UU881-A2F3M"
 
         private const val RESULT_INSTALL_OK = 0x00000000
         private const val RESULT_ERROR_INVALID_PASSWORD = 0x80070056.toInt()
