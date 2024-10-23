@@ -112,10 +112,12 @@ class JniInit {
 
         private fun onShowSnackbar(resultCode: Int, messageSuccess: String, onShowSnackbar: (String, Boolean) -> Unit) {
             var message = JniWrapper.errorMessage(resultCode)
-            if (message.isNullOrEmpty() && resultCode == RESULT_INSTALL_OK) {
-                message = messageSuccess
+            val resultOk = resultCode == RESULT_INSTALL_OK
+            if (message.isNullOrEmpty() && resultOk) message = messageSuccess
+            if (!message.isNullOrEmpty()) {
+                if (!resultOk) message += "(0x${Integer.toHexString(resultCode)})"
+                onShowSnackbar(message, !resultOk)
             }
-            message?.let { if (it.isNotEmpty()) onShowSnackbar(it, resultCode != RESULT_INSTALL_OK) }
         }
     }
 }
