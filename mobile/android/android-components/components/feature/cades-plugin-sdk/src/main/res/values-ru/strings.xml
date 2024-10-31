@@ -4,4 +4,5 @@
     <string name="license_installation_success">Лицензия успешно введена.</string>
     <string name="pfx_installation_success">Сертификаты и ключи из pfx-контейнера успешно сохранены.</string>
     <string name="pfx_enter_password">Введите пароль для доступа к pfx контейнеру.</string>
+    <string name="csp_init_error">Произошла ошибка, не удается инициализировать КриптоПро CSP.\nКод ошибки: %d</string>
 </resources>

@@ -1249,8 +1249,8 @@ abstract class BaseBrowserFragment :
                 requireComponents.core.engine,
                 requireComponents.core.store,
                 launchQr = ::launchQr,
-                onShowSnackbar = ::onShowSnackbar,
-                onShowPfxPasswordDialog = ::onShowPfxPasswordDialog
+                onShowSnackbar = ::showSnackbar,
+                onShowPfxPasswordDialog = ::showPfxPasswordDialog
             ),
             owner = this,
             view = view,
@@ -2675,7 +2675,7 @@ abstract class BaseBrowserFragment :
         requireContext().settings().setCameraPermissionNeededState = false
     }
 
-    private fun onShowSnackbar(text: String, isError: Boolean) {
+    private fun showSnackbar(text: String, isError: Boolean) {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             view?.let {
                 FenixSnackbar.make(
@@ -2689,7 +2689,7 @@ abstract class BaseBrowserFragment :
         }
     }
 
-    private fun onShowPfxPasswordDialog(ontPositiveButtonClick: (String) -> Unit) {
+    private fun showPfxPasswordDialog(ontPositiveButtonClick: (String) -> Unit) {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             view?.let {
                 val passwordDialogBinding = PasswordDialogBinding.inflate(LayoutInflater.from(requireContext()))

@@ -7,6 +7,19 @@ import mozilla.components.feature.cades.plugin.sdk.wrapper.RutokenInit
 import kotlin.concurrent.thread
 
 class CAdESPlugin private constructor(context: Context) {
+    val cspInitCode: Int
+    init {
+        // https://dev.rutoken.ru/pages/viewpage.action?pageId=54395671, но пока не нашел другого места.
+        RutokenInit.init(context)
+        // Инициализация провайдера должна быть первой!
+        cspInitCode = JniInit.initNativeCSP(context)
+        JniInit.installLicenses()
+        thread {
+            // Запуск в вечном потоке цикла только после инициализации провайдера!
+            JniInit.initMainCircle(context)
+        }
+    }
+
     companion object {
         @SuppressLint("StaticFieldLeak")
         @Volatile
@@ -26,16 +39,4 @@ class CAdESPlugin private constructor(context: Context) {
         }
 
     }
-    init {
-        // https://dev.rutoken.ru/pages/viewpage.action?pageId=54395671, но пока не нашел другого места.
-        RutokenInit.init(context)
-        // Инициализация провайдера должна быть первой!
-        JniInit.initNativeCSP(context)
-        JniInit.installLicenses()
-        thread {
-            // Запуск в вечном потоке цикла только после инициализации провайдера!
-            JniInit.initMainCircle(context)
-        }
-    }
-
 }

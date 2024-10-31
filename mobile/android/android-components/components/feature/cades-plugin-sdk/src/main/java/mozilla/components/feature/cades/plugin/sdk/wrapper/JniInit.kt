@@ -29,12 +29,13 @@ class JniInit {
         private const val RESULT_ERROR_INVALID_PASSWORD = 0x80070056.toInt()
 
         @JvmStatic
-        fun initNativeCSP(context: Context) {
+        fun initNativeCSP(context: Context): Int {
             logger.info("Initiating native CSP...")
             val error = NCSPConfig.init(context)
             if (error != NCSPConfig.CSP_INIT_OK) {
                 logger.error("Initiating native CSP failed with error $error")
             }
+            return error
         }
 
         @JvmStatic

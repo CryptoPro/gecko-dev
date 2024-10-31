@@ -48,21 +48,27 @@ class CAdESPluginFeature(
             runtime,
             onSuccess = {
                 // Нужно дождаться завершения инициализации. Она делается один раз.
+                var cspInitCode: Int
                 runBlocking {
                     withContext(Dispatchers.IO) {
-                        CAdESPlugin.init(context)
+                        val cAdESPlugin = CAdESPlugin.init(context)
+                        cspInitCode = cAdESPlugin.cspInitCode
                     }
                 }
-                // Реакция на изменения на вкладках.
-                scope = store.flowScoped { flow ->
-                    flow.mapNotNull { it.tabs  }
-                        .filterChanged { it.engineState.engineSession }
-                        .collect {
-                            it.engineState.engineSession?.let { engineSession ->
-                                logger.debug("registerContentMessageHandler with session $engineSession")
-                                extensionController.registerContentMessageHandler(engineSession, CAdESPluginMessageHandler(launchQr = launchQr), CAdES_PLUGIN_MESSAGING_ID)
+                if (cspInitCode == 0) {
+                    // Реакция на изменения на вкладках.
+                    scope = store.flowScoped { flow ->
+                        flow.mapNotNull { it.tabs  }
+                            .filterChanged { it.engineState.engineSession }
+                            .collect {
+                                it.engineState.engineSession?.let { engineSession ->
+                                    logger.debug("registerContentMessageHandler with session $engineSession")
+                                    extensionController.registerContentMessageHandler(engineSession, CAdESPluginMessageHandler(launchQr = launchQr), CAdES_PLUGIN_MESSAGING_ID)
+                                }
                             }
-                        }
+                    }
+                } else {
+                    onShowSnackbar(String.format(context.getString(R.string.csp_init_error), cspInitCode), true)
                 }
                 logger.debug("Installed CAdES Plug-in web extension: ${it.id}")
             },
