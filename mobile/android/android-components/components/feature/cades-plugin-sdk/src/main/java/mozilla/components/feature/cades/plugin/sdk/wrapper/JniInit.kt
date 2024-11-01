@@ -15,6 +15,7 @@ import ru.cprocsp.URIManager.LicenseManager
 import ru.cprocsp.URIManager.PFXManager
 import ru.cprocsp.URIManager.RootCertificateManager
 import ru.cprocsp.URIManager.URIManagerFactory
+import java.util.Locale
 
 class JniInit {
     companion object {
@@ -51,8 +52,9 @@ class JniInit {
         @JvmStatic
         fun initMainCircle(context: Context) {
             logger.info("Initiating main message circle...")
+            val loc = Locale.getDefault()
             // Цикл обработки nmcades'ом сообщений из javascript.
-            val error = JniWrapper.main(context.applicationInfo.dataDir)
+            val error = JniWrapper.main(context.applicationInfo.dataDir, loc.toString())
             if (error != 0) {
                 logger.error("Main message circle failed with error $error")
             }

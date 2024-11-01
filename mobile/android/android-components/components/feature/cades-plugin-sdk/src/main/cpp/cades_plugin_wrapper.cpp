@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string>
 #include <istream>
+#include <cstdlib>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -26,7 +27,12 @@ static int fd_in = 0, fd_out = 0;
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_main(JNIEnv *env, jclass clazz, jstring jPath) {
+Java_mozilla_components_feature_cades_plugin_sdk_wrapper_JniWrapper_main(JNIEnv *env, jclass clazz, jstring jPath, jstring jLocale) {
+    const char *pszLocale = nullptr;
+    if (jLocale != nullptr) {
+      pszLocale = env->GetStringUTFChars(jLocale, JNI_FALSE);
+      setenv("locale", pszLocale, 1);
+    }
     int error;
     const char *pszPath = nullptr;
     std::string path, inPath, outPath;

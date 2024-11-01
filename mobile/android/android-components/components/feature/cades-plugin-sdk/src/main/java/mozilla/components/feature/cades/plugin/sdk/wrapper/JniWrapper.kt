@@ -8,7 +8,7 @@ class JniWrapper {
         }
 
         @JvmStatic
-        external fun main(path: String): Int
+        external fun main(path: String, locale: String): Int
 
         @JvmStatic
         external fun read(): ByteArray
