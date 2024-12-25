@@ -55,7 +55,7 @@ android {
     sourceSets {
         main {
             res.srcDirs += ['android-native-csp/resources/res']
-			jniLibs.srcDirs += ['android-native-csp/jniLibs']
+            jniLibs.srcDirs += ['android-native-csp/third-party/jniLibs']
         }
     }
     buildTypes {
@@ -82,8 +82,8 @@ dependencies {
     // CSP
     implementation(fileTree("android-native-csp/aar") {include("*.aar")})
     implementation "commons-codec:commons-codec:1.14"
-	// Rutoken
-	implementation "ru.rutoken:rtpcsc:2.5.0"
+    // Rutoken
+    implementation "ru.rutoken:rtpcsc:2.5.0"
     implementation "ru.rutoken:pkcs11jna:4.1.0"
     implementation "net.java.dev.jna:jna:5.14.0"
     // UI
