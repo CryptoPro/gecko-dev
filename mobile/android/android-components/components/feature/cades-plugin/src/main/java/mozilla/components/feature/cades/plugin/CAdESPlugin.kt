@@ -2,17 +2,11 @@ package mozilla.components.feature.cades.plugin
 
 import android.annotation.SuppressLint
 import android.content.Context
-import mozilla.components.feature.cades.plugin.sdk.wrapper.JniInit
-import mozilla.components.feature.cades.plugin.sdk.wrapper.RutokenInit
 import kotlin.concurrent.thread
 
 class CAdESPlugin private constructor(context: Context) {
     val cspInitCode: Int
     init {
-        // https://dev.rutoken.ru/pages/viewpage.action?pageId=54395671, но пока не нашел другого места.
-        RutokenInit.init(context)
-        // Инициализация провайдера должна быть первой!
-        cspInitCode = JniInit.initNativeCSP(context)
         JniInit.installLicenses()
         thread {
             // Запуск в вечном потоке цикла только после инициализации провайдера!

@@ -44,6 +44,8 @@ import mozilla.components.concept.storage.FrecencyThresholdOption
 import mozilla.components.feature.addons.migration.DefaultSupportedAddonsChecker
 import mozilla.components.feature.addons.update.GlobalAddonDependencyProvider
 import mozilla.components.feature.autofill.AutofillUseCases
+import mozilla.components.feature.cades.plugin.sdk.wrapper.JniInit
+import mozilla.components.feature.cades.plugin.sdk.wrapper.RutokenInit
 import mozilla.components.feature.fxsuggest.GlobalFxSuggestDependencyProvider
 import mozilla.components.feature.search.ext.buildSearchUrl
 import mozilla.components.feature.search.ext.waitForSelectedOrDefaultSearchEngine
@@ -146,6 +148,11 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
 
     override fun onCreate() {
         super.onCreate()
+
+        // https://dev.rutoken.ru/pages/viewpage.action?pageId=54395671.
+        RutokenInit.init(context)
+        // Инициализация провайдера должна быть первой!
+        cspInitCode = JniInit.initNativeCSP(context)
 
         if (shouldShowPrivacyNotice()) {
             // For Mozilla Online build: Delay initialization on first run until privacy notice
