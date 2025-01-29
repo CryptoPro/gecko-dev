@@ -28,7 +28,7 @@ android {
         compileSdk config.compileSdkVersion
         targetSdkVersion config.targetSdkVersion
         ndk {
-            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+            abiFilters 'arm64-v8a'
         }
     }
     packagingOptions {
@@ -83,9 +83,8 @@ dependencies {
     implementation(fileTree("android-native-csp/aar") {include("*.aar")})
     implementation "commons-codec:commons-codec:1.14"
     // Rutoken
-    implementation "ru.rutoken:rtpcsc:2.5.0"
     implementation "ru.rutoken:pkcs11jna:4.1.0"
-    implementation "net.java.dev.jna:jna:5.14.0"
+    implementation "net.java.dev.jna:jna:5.16.0"
     // UI
     implementation ComponentsDependencies.androidx_appcompat
     implementation ComponentsDependencies.androidx_constraintlayout

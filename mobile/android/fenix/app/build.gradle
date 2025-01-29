@@ -632,6 +632,7 @@ dependencies {
     implementation project(':feature-webcompat-reporter')
 
     implementation project(':feature-cades-plugin')
+    implementation project(':feature-cades-plugin-sdk')
 
     implementation project(':service-pocket')
     implementation project(':service-contile')
